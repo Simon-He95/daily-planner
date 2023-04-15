@@ -30,6 +30,25 @@
   "engines": {
     "vscode": "^1.77.0"
   },
+  "contributes": {
+    "commands": [{
+      "command": "extension.myCommand",
+      "title": "My Command"
+    }],
+    "viewsContainers": {
+      "activitybar": [{
+        "id": "plannerShow",
+        "title": "Daily Planner",
+        "icon": "icon.png"
+      }]
+    },
+    "views": {
+      "plannerShow": [{
+        "id": "myView",
+        "name": "My View"
+      }]
+    }
+  },
   "scripts": {
     "dev": "pnpm build --watch",
     "test": "vitest",
