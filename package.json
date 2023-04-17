@@ -31,22 +31,28 @@
     "vscode": "^1.77.0"
   },
   "contributes": {
-    "commands": [{
-      "command": "extension.myCommand",
-      "title": "My Command"
-    }],
+    "commands": [
+      {
+        "command": "extension.myCommand",
+        "title": "My Command"
+      }
+    ],
     "viewsContainers": {
-      "activitybar": [{
-        "id": "plannerShow",
-        "title": "Daily Planner",
-        "icon": "icon.png"
-      }]
+      "activitybar": [
+        {
+          "id": "plannerShow",
+          "title": "Daily Planner",
+          "icon": "icon.png"
+        }
+      ]
     },
     "views": {
-      "plannerShow": [{
-        "id": "myView",
-        "name": "My View"
-      }]
+      "plannerShow": [
+        {
+          "id": "myView",
+          "name": "My View"
+        }
+      ]
     }
   },
   "scripts": {
@@ -62,11 +68,15 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.38.4",
+    "@types/koa": "^2.13.6",
+    "@types/koa-router": "^7.4.4",
     "@types/node": "^18.15.11",
     "@types/vscode": "^1.77.0",
     "bumpp": "^9.1.0",
     "eslint": "^8.37.0",
     "esno": "^0.16.3",
+    "koa": "^2.14.2",
+    "koa-router": "^12.0.0",
     "pnpm": "^8.1.1",
     "rimraf": "^4.4.1",
     "tsup": "^6.7.0",

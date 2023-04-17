@@ -1,8 +1,9 @@
 import * as vscode from 'vscode'
+import { createServer } from './server'
 
 export function activate(context: vscode.ExtensionContext) {
   // todo: 起一个server存储数据
-
+  createServer()
   context.subscriptions.push(
     vscode.commands.registerCommand('extension.myCommand', () => {
       // 创建一个 WebviewPanel，并设置其标题和内容
