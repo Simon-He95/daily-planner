@@ -33,6 +33,9 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
         this.id = id
         map.forEach((item: any) => {
           const { label, id, name, time } = item
+          if (id === 'add plan')
+            return this.#init()
+
           const treeItem = new TodoItem(label, vscode.TreeItemCollapsibleState.None) as any
           treeItem.command = {
             command: 'todoList.select',
@@ -47,7 +50,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
           this.todos.push(treeItem)
         })
         this.refresh()
-        resolve()
+        setTimeout(() => resolve())
       })
     }
     else {
@@ -101,6 +104,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
     treeItem.id = String(this.id)
     treeItem.name = name
     treeItem.time = time
+    treeItem.children = ['nihao']
     this.id = this.id + 1
     this.todos.push(treeItem)
     this.refresh()
