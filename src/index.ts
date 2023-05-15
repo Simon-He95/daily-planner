@@ -1,9 +1,9 @@
 import * as vscode from 'vscode'
 import { TodoDataProvider } from './todoModel'
-import { getCurrentDate } from './common'
 
-const timer: any = null
-export function activate(context: vscode.ExtensionContext) {
+// todo: 添加生成周报功能
+let timer: any = null
+export async function activate(context: vscode.ExtensionContext) {
   let isClosed = false
   const todoDataProvider = new TodoDataProvider(() => {
     if (!isClosed && !todoDataProvider.hasTodo) {
@@ -16,18 +16,17 @@ export function activate(context: vscode.ExtensionContext) {
         })
     }
   })
-
-  context.subscriptions.push(vscode.window.registerTreeDataProvider('DailyPlannerView.id', todoDataProvider))
+  const DailyPlannerViewDisposable = vscode.window.registerTreeDataProvider('DailyPlannerView.id', todoDataProvider)
 
   // 开启一个定时任务去检测是否达到计划时间，提醒开始任务 每秒检测
-  // timer = setInterval(() => {
-  //   if (!todoDataProvider.hasTodo)
-  //     return
-  //   todoDataProvider.monitor()
-  // }, 1000)
+  timer = setInterval(() => {
+    if (!todoDataProvider.hasTodo)
+      return
+    todoDataProvider.monitor()
+  }, 1000)
   const addTodoDisposable = vscode.commands.registerCommand('todoList.addTodo', async () => {
     const todoLabel = (await vscode.window.showInputBox({ prompt: '输入你的计划名' }))?.trim()
-    const dateTime = (await vscode.window.showInputBox({
+    const time = (await vscode.window.showInputBox({
       prompt: '请输入计划开始时间(HH:mm)',
       ignoreFocusOut: true,
       validateInput: (value) => {
@@ -36,10 +35,8 @@ export function activate(context: vscode.ExtensionContext) {
       },
     }))?.trim()
 
-    if (dateTime && todoLabel) {
-      const date = getCurrentDate()
-      todoDataProvider.addTodo({ name: todoLabel, time: `${date} ${dateTime}` })
-    }
+    if (time && todoLabel)
+      todoDataProvider.addTodo({ name: todoLabel, time })
   })
 
   const selectTodoDisposable = vscode.commands.registerCommand('todoList.select', async (todoItem) => {
@@ -56,7 +53,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
   })
 
-  context.subscriptions.push(addTodoDisposable, selectTodoDisposable)
+  context.subscriptions.push(DailyPlannerViewDisposable, addTodoDisposable, selectTodoDisposable)
 }
 
 export function deactivate() {

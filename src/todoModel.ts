@@ -1,7 +1,8 @@
 import fs from 'node:fs'
 import process from 'node:process'
 import * as vscode from 'vscode'
-import { getCurrentDate } from './common'
+import { nanoid } from 'nanoid'
+import { getCurrentDate, getDay } from './common'
 
 export class TodoItem extends vscode.TreeItem {
   constructor(
@@ -17,48 +18,53 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
   private _onDidChangeTreeData: vscode.EventEmitter<TodoItem | undefined | void> = new vscode.EventEmitter<TodoItem | undefined | void>()
   readonly onDidChangeTreeData: vscode.Event<TodoItem | undefined | void> = this._onDidChangeTreeData.event
 
-  private todos: Record<string, { id: string; name?: string;children?: TodoItem[] }> = {}
-  id = 0
+  private todos: Record<string, { id: string; name?: string; children?: TodoItem[]; time: string; datetime: string }> = {}
+  id = '0'
   constructor(resolve: Function) {
     // 读取本地配置，如果没有则初始化
-    // if (fs.existsSync(__local__)) {
-    //   fs.promises.readFile(__local__, 'utf-8').then((config) => {
-    //     const date = getCurrentDate()
-    //     const data = JSON.parse(config)[date]
-    //     if (!data) {
-    //       this.#init()
-    //       return
-    //     }
-    //     const { id, map } = data
-    //     this.id = id
-    //     map.forEach((item: any) => {
-    //       const { label, id, name, time } = item
-    //       if (id === 'add plan')
-    //         return this.#init()
+    if (fs.existsSync(__local__)) {
+      fs.promises.readFile(__local__, 'utf-8').then((config) => {
+        if (!config) {
+          setTimeout(() => resolve())
+          return
+        }
+        const _config = JSON.parse(config)
+        for (const key in _config) {
+          const data = _config[key]
+          const { id, title, children } = data
+          const temp: any = {
+            id,
+            title,
+            children: children.map((child: any) => {
+              const { label, name, time, parent, id } = child
+              const treeItem = new TodoItem(label, vscode.TreeItemCollapsibleState.None) as any
+              treeItem.command = {
+                command: 'todoList.select',
+                title: label,
+                tooltip: label,
+                arguments: [treeItem],
+              }
+              this.id = id
+              treeItem.id = String(id)
+              treeItem.name = name
+              treeItem.time = time
+              treeItem.parent = parent
+              return treeItem
+            }),
+            treeItem: new vscode.TreeItem(title, vscode.TreeItemCollapsibleState.Expanded),
+          }
+          this.todos[key] = temp
+        }
 
-    //       const treeItem = new TodoItem(label, vscode.TreeItemCollapsibleState.None) as any
-    //       treeItem.command = {
-    //         command: 'todoList.select',
-    //         title: label,
-    //         tooltip: label,
-    //         arguments: [treeItem],
-    //       }
-    //       treeItem.id = String(this.id)
-    //       treeItem.name = name
-    //       treeItem.time = time
-    //       this.id = id
-    //       this.todos.push(treeItem)
-    //     })
-    //     this.refresh()
-    //     setTimeout(() => resolve())
-    //   })
-    // }
-    // else {
-    this.#init()
-    setTimeout(() => {
-      resolve()
-    })
-    // }
+        this.refresh()
+        setTimeout(() => resolve())
+      })
+    }
+    else {
+      setTimeout(() => {
+        resolve()
+      })
+    }
   }
 
   #init() {
@@ -78,7 +84,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
   }
 
   get hasTodo() {
-    return Object.keys(this.todos).length > 1
+    return Object.keys(this.todos).length > 0
   }
 
   getTreeItem(element: any): vscode.TreeItem {
@@ -95,7 +101,6 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       })
       result.unshift(this.#init())
       return result as any
-      // return Promise.resolve()
     }
   }
 
@@ -109,17 +114,20 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       tooltip: label,
       arguments: [treeItem],
     }
-    treeItem.id = String(this.id)
+    this.id = nanoid()
+
+    treeItem.id = this.id
     treeItem.name = name
     treeItem.time = time
     const date = getCurrentDate()
+    treeItem.datetime = `${date} ${time}`
     treeItem.parent = date
-
+    const title = `${date} ${getDay()}`
     let temp: any = {
       id: 'root',
-      title: date,
+      title,
       children: [],
-      treeItem: new vscode.TreeItem(getCurrentDate(), vscode.TreeItemCollapsibleState.Expanded),
+      treeItem: new vscode.TreeItem(title, vscode.TreeItemCollapsibleState.Expanded),
     }
     if (!this.todos[date])
       this.todos[date] = temp
@@ -128,7 +136,6 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
 
     temp.children.push(treeItem)
 
-    this.id = this.id + 1
     this.refresh()
     this.#gerateLocalConfig()
   }
@@ -146,8 +153,14 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
   }
 
   monitor() {
-    const nowTime = this.#getTime()
-    const arrivedPlan = this.todos.find((todo: any) => nowTime === todo.time)
+    const _datetime = this.#getTime()
+    let arrivedPlan
+    for (const key in this.todos) {
+      const { children } = this.todos[key]
+      arrivedPlan = children?.find((child: any) => child.datetime === _datetime)
+      if (arrivedPlan)
+        break
+    }
     if (!arrivedPlan)
       return
     // 弹出提醒
@@ -161,22 +174,15 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
 
   #gerateLocalConfig() {
     // 每次新增或删除都同步到本地的文件中
-    const map: any[] = []
-    // const date = getCurrentDate()
-    // Object.keys(this.todos).forEach(todo=>{
-    //   const
-    // })
-    // this.todos.forEach((item: any) => {
-    //   const { id, time, name, label } = item
-    //   map.push({
-    //     id,
-    //     time,
-    //     name,
-    //     label,
-    //   })
-    // })
-    debugger
-    const data = JSON.stringify(this.todos)
+    const data = JSON.stringify(Object.keys(this.todos).reduce((result, key) => {
+      const { title, id, children } = this.todos[key] as any
+      result[key] = {
+        title,
+        id,
+        children: children?.map((child: any) => ({ id: child.id, label: child.label, name: child.name, time: child.time, parent: child.parent })),
+      }
+      return result
+    }, {} as any))
     fs.promises.writeFile(__local__, data, 'utf-8')
   }
 }
