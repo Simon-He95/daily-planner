@@ -46,7 +46,7 @@
     "views": {
       "todoList": [
         {
-          "id": "todoTreeView",
+          "id": "DailyPlannerView.id",
           "name": "plan list"
         }
       ]
