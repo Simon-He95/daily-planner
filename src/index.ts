@@ -5,16 +5,18 @@ import { getCurrentDate } from './common'
 let timer: any = null
 export function activate(context: vscode.ExtensionContext) {
   let isClosed = false
-  const todoDataProvider = new TodoDataProvider()
-  if (!isClosed && !todoDataProvider.hasTodo) {
-    vscode.window.showInformationMessage('您还没有添加今日的计划，是否开启今日计划?', '添加计划', '忽略')
-      .then((choice) => {
-        if (choice === '添加计划')
-          vscode.commands.executeCommand('workbench.view.extension.todoList')
-        else
-          isClosed = true
-      })
-  }
+  const todoDataProvider = new TodoDataProvider(() => {
+    if (!isClosed && !todoDataProvider.hasTodo) {
+      vscode.window.showInformationMessage('您还没有添加今日的计划，是否开启今日计划?', '添加计划', '忽略')
+        .then((choice) => {
+          if (choice === '添加计划')
+            vscode.commands.executeCommand('workbench.view.extension.todoList')
+          else
+            isClosed = true
+        })
+    }
+  })
+
   context.subscriptions.push(vscode.window.registerTreeDataProvider('todoTreeView', todoDataProvider))
 
   // 开启一个定时任务去检测是否达到计划时间，提醒开始任务 每秒检测
