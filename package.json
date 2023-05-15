@@ -30,30 +30,37 @@
   "engines": {
     "vscode": "^1.77.0"
   },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "contributes": {
-    "commands": [
-      {
-        "command": "extension.myCommand",
-        "title": "My Command"
-      }
-    ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "plannerShow",
-          "title": "Daily Planner",
+          "id": "todoList",
+          "title": "To-do List",
           "icon": "icon.png"
         }
       ]
     },
     "views": {
-      "plannerShow": [
+      "todoList": [
         {
-          "id": "myView",
-          "name": "My View"
+          "id": "todoTreeView",
+          "name": "To-do"
         }
       ]
-    }
+    },
+    "commands": [
+      {
+        "command": "todoList.addTodo",
+        "title": "Add Todo"
+      },
+      {
+        "command": "todoList.deleteTodo",
+        "title": "Delete Todo"
+      }
+    ]
   },
   "scripts": {
     "dev": "pnpm build --watch",
