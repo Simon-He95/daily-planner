@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import process from 'node:process'
 import * as vscode from 'vscode'
 import { nanoid } from 'nanoid'
-import { getCurrentDate, getDay } from './common'
+import { calculateTime, getCurrentDate, getDay } from './common'
 
 export class TodoItem extends vscode.TreeItem {
   constructor(
@@ -93,12 +93,14 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
 
   getChildren(element?: any): Thenable<TodoItem[]> {
     if (element) {
-      return element.children
+      // 做一个按照时间的排序
+      return element.children.sort((a: any, b: any) => calculateTime(a.time) - calculateTime(b.time))
     }
     else {
       const result = Object.keys(this.todos).map((key) => {
         return this.todos[key]
       })
+
       result.unshift(this.#init())
       return result as any
     }

@@ -11,3 +11,8 @@ const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周�
 export function getDay() {
   return days[new Date().getDay()]
 }
+
+export function calculateTime(time: string) {
+  const [hour, minutes] = time.split(':')
+  return +hour * 60 + +minutes
+}
