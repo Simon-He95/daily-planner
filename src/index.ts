@@ -1,7 +1,8 @@
+import fsp from 'node:fs/promises'
 import * as vscode from 'vscode'
 import { TodoDataProvider } from './todoModel'
+import { compareDay, getCurrentDate, getDayFirst } from './common'
 
-// todo: 添加生成周报功能
 let timer: any = null
 export async function activate(context: vscode.ExtensionContext) {
   let isClosed = false
@@ -53,7 +54,33 @@ export async function activate(context: vscode.ExtensionContext) {
     }
   })
 
-  context.subscriptions.push(DailyPlannerViewDisposable, addTodoDisposable, selectTodoDisposable)
+  const generateReportDisposable = vscode.commands.registerCommand('todoList.generateReport', async (data) => {
+    // 生成周报
+    const today = getCurrentDate()
+    const firstDay = getDayFirst()
+    let result = '# Daily Planner 周报 \n\n'
+    // 计算周一到今天的数据生成周报
+    Object.keys(data).forEach((key) => {
+      if (compareDay(key, firstDay) && compareDay(today, key)) {
+        const { title, children } = data[key]
+        result += `## ${title} \n`
+        children.forEach((child: any) => {
+          result += `- ${child.label}\n`
+        })
+        result += '\n'
+      }
+    })
+    // 生产markdown类型周报
+    const folders = vscode.workspace.workspaceFolders
+    if (!folders)
+      return
+    const rootpath = folders[0].uri.fsPath
+    fsp.writeFile(`${rootpath}/daily-planner__report.md`, result, 'utf-8').catch((err) => {
+      vscode.window.showErrorMessage(err.message)
+    })
+  })
+
+  context.subscriptions.push(DailyPlannerViewDisposable, addTodoDisposable, selectTodoDisposable, generateReportDisposable)
 }
 
 export function deactivate() {

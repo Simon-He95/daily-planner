@@ -79,6 +79,19 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
     return treeItem
   }
 
+  #report() {
+    const title = '🔘 生成本周周报'
+    const treeItem = new TodoItem(title, vscode.TreeItemCollapsibleState.None) as any
+    treeItem.id = 'generate report'
+    treeItem.command = {
+      command: 'todoList.generateReport',
+      title,
+      tooltip: title,
+      arguments: [this.todos],
+    }
+    return treeItem
+  }
+
   refresh(): void {
     this._onDidChangeTreeData.fire()
   }
@@ -100,6 +113,10 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       const result = Object.keys(this.todos).map((key) => {
         return this.todos[key]
       })
+      if (Object.keys(result).length) {
+        // 添加生成周报
+        result.unshift(this.#report())
+      }
 
       result.unshift(this.#init())
       return result as any
