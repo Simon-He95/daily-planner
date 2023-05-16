@@ -5,6 +5,11 @@
 
 >WIP: vscode extension Plan Reminder
 
+instruction:
+   - Open vscode every day to remind you to add plans
+   - When the scheduled start time is reached, it will remind you to start the plan
+   - Generate a weekly report with plans from Monday to present
+
 ## :coffee:
 
 [buy me a cup of coffee](https://github.com/Simon-He95/sponsor)
