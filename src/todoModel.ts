@@ -128,16 +128,40 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       return element.children.sort((a: any, b: any) => calculateTime(a.time) - calculateTime(b.time))
     }
     else {
+      let maxNameLength = 0
       const result = Object.keys(this.todos).map((key) => {
-        return this.todos[key]
+        const item = this.todos[key]
+        const children = item.children!
+        if (children.length) {
+          children.forEach((child: any) => {
+            maxNameLength = Math.max(child.name.length, maxNameLength)
+          })
+        }
+        return item
       })
+
+      // format:格式化内容 根据最长label整齐展示
+      if (maxNameLength > 0) {
+        result.map((item) => {
+          if (item.children) {
+            item.children = item.children.map((child: any) => {
+              const num = maxNameLength - child.name.length
+              if (num > 0) {
+                const before = `计划: ${child.name}`
+                child.label = child.label.replace(before, before + ' '.repeat(num))
+              }
+              return child
+            })
+          }
+          return item
+        })
+      }
       if (Object.keys(result).length) {
         // button: 添加生成周报
         result.unshift(this.#report())
       }
       // button: 添加任务
       result.unshift(this.#init())
-      // todo:格式化内容 根据最长label整齐展示
       return result as any
     }
   }
