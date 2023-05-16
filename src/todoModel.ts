@@ -124,7 +124,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
 
   getChildren(element?: any): Thenable<TodoItem[]> {
     if (element) {
-      // 做一个按照时间的排序
+      // sort: 做一个按照时间的排序
       return element.children.sort((a: any, b: any) => calculateTime(a.time) - calculateTime(b.time))
     }
     else {
@@ -132,10 +132,12 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
         return this.todos[key]
       })
       if (Object.keys(result).length) {
-        // 添加生成周报
+        // button: 添加生成周报
         result.unshift(this.#report())
       }
+      // button: 添加任务
       result.unshift(this.#init())
+      // todo:格式化内容 根据最长label整齐展示
       return result as any
     }
   }
