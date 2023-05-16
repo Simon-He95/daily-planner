@@ -26,14 +26,15 @@ export async function activate(context: vscode.ExtensionContext) {
     todoDataProvider.monitor()
   }, 1000)
   const addTodoDisposable = vscode.commands.registerCommand('todoList.addTodo', async () => {
-    const todoLabel = (await vscode.window.showInputBox({ prompt: '输入你的计划名' }))?.trim()
+    const todoLabel = (await vscode.window.showInputBox({
+      prompt: '输入你的计划名',
+      ignoreFocusOut: true,
+      validateInput: value => value.trim() ? undefined : '计划名不能为空',
+    }))?.trim()
     const time = (await vscode.window.showInputBox({
       prompt: '请输入计划开始时间(HH:mm)',
       ignoreFocusOut: true,
-      validateInput: (value) => {
-        const regex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/
-        return regex.test(value) ? undefined : 'Invalid time format'
-      },
+      validateInput: value => /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value) ? undefined : '日期格式有误，参考格式:HH:mm',
     }))?.trim()
 
     if (time && todoLabel)
