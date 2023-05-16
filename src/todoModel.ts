@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import process from 'node:process'
 import * as vscode from 'vscode'
+import type { ExtensionContext } from 'vscode'
 import { nanoid } from 'nanoid'
 import { calculateTime, getCurrentDate, getDay } from './common'
 
@@ -20,7 +21,9 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
 
   private todos: Record<string, { id: string; name?: string; children?: TodoItem[]; time: string; datetime: string }> = {}
   id = '0'
-  constructor(resolve: Function) {
+  extensionContext: ExtensionContext
+  constructor(extensionContext: ExtensionContext, resolve: Function) {
+    this.extensionContext = extensionContext
     // 读取本地配置，如果没有则初始化
     if (fs.existsSync(__local__)) {
       fs.promises.readFile(__local__, 'utf-8').then((config) => {
@@ -43,6 +46,10 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
                 title: label,
                 tooltip: label,
                 arguments: [treeItem],
+              }
+              treeItem.iconPath = {
+                light: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/light/plan.svg')),
+                dark: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/dark/plan.svg')),
               }
               this.id = id
               treeItem.id = String(id)
@@ -68,7 +75,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
   }
 
   #init() {
-    const add = '+ 添加你的计划'
+    const add = '添加你的计划'
     const treeItem = new TodoItem(add, vscode.TreeItemCollapsibleState.None) as any
     treeItem.id = 'add plan'
     treeItem.command = {
@@ -76,11 +83,17 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       title: add,
       tooltip: add,
     }
+
+    treeItem.iconPath = {
+      light: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/light/add.svg')),
+      dark: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/dark/add.svg')),
+    }
+
     return treeItem
   }
 
   #report() {
-    const title = '🔘 生成本周周报'
+    const title = '生成本周周报'
     const treeItem = new TodoItem(title, vscode.TreeItemCollapsibleState.None) as any
     treeItem.id = 'generate report'
     treeItem.command = {
@@ -88,6 +101,10 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       title,
       tooltip: title,
       arguments: [this.todos],
+    }
+    treeItem.iconPath = {
+      light: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/light/report.svg')),
+      dark: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/dark/report.svg')),
     }
     return treeItem
   }
@@ -118,7 +135,6 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
         // 添加生成周报
         result.unshift(this.#report())
       }
-
       result.unshift(this.#init())
       return result as any
     }
@@ -133,6 +149,10 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       title: label,
       tooltip: label,
       arguments: [treeItem],
+    }
+    treeItem.iconPath = {
+      light: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/light/plan.svg')),
+      dark: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/dark/plan.svg')),
     }
     this.id = nanoid()
 

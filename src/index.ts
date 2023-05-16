@@ -6,7 +6,7 @@ import { compareDay, getCurrentDate, getDayFirst } from './common'
 let timer: any = null
 export async function activate(context: vscode.ExtensionContext) {
   let isClosed = false
-  const todoDataProvider = new TodoDataProvider(() => {
+  const todoDataProvider = new TodoDataProvider(context, () => {
     if (!isClosed && !todoDataProvider.hasTodo) {
       vscode.window.showInformationMessage('您还没有添加今日的计划，是否开启今日计划?', '添加计划', '忽略')
         .then((choice) => {
