@@ -78,6 +78,8 @@ export async function activate(context: vscode.ExtensionContext) {
     const rootpath = folders[0].uri.fsPath
     fsp.writeFile(`${rootpath}/daily-planner__report.md`, result, 'utf-8').catch((err) => {
       vscode.window.showErrorMessage(err.message)
+    }).then(() => {
+      vscode.window.showInformationMessage('Daily Planner 周报已生成在当前目录下')
     })
   })
 
