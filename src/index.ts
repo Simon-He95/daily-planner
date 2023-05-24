@@ -32,7 +32,8 @@ export async function activate(context: vscode.ExtensionContext) {
       validateInput: value => value.trim() ? undefined : '计划名不能为空',
     }))?.trim()
     const time = (await vscode.window.showInputBox({
-      prompt: '请输入计划开始时间(HH:mm)',
+      prompt: '请输入计划开始时间(HH:mm) 24小时制',
+      placeHolder: 'HH:mm',
       ignoreFocusOut: true,
       validateInput: value => /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value) ? undefined : '日期格式有误，参考格式:HH:mm',
     }))?.trim()

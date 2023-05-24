@@ -92,6 +92,24 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
     return treeItem
   }
 
+  #dailyInit() {
+    const add = '添加每日提醒计划'
+    const treeItem = new TodoItem(add, vscode.TreeItemCollapsibleState.None) as any
+    treeItem.id = 'add dailyplan'
+    treeItem.command = {
+      command: 'todoList.addDailyTodo',
+      title: add,
+      tooltip: add,
+    }
+
+    treeItem.iconPath = {
+      light: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/light/add.svg')),
+      dark: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/dark/add.svg')),
+    }
+
+    return treeItem
+  }
+
   #report() {
     const title = '生成本周周报'
     const treeItem = new TodoItem(title, vscode.TreeItemCollapsibleState.None) as any
@@ -115,7 +133,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
 
   get hasTodo() {
     // 查看今日的计划是否有指定
-    return !!this.todos[getCurrentDate()]
+    return !!this.todos[getCurrentDate()] || !!this.todos['每日提醒计划']?.children?.length
   }
 
   getTreeItem(element: any): vscode.TreeItem {
@@ -125,12 +143,27 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
   getChildren(element?: any): Thenable<TodoItem[]> {
     if (element) {
       // sort: 做一个按照时间的排序
-      return element.children.sort((a: any, b: any) => calculateTime(a.time) - calculateTime(b.time))
+      return element.children && element.children.sort((a: any, b: any) => calculateTime(a.time) - calculateTime(b.time))
     }
     else {
       let maxNameLength = 0
-      const result = Object.keys(this.todos).map((key) => {
-        const item = this.todos[key]
+      const label = '每日提醒计划'
+      const treeItem = new TodoItem(label, vscode.TreeItemCollapsibleState.Expanded)
+      const daily = {
+        id: 'root',
+        title: label,
+        treeItem,
+        children: [],
+      }
+      const today = getCurrentDate()
+      const data = { [label]: daily, ...this.todos }
+      const result = Object.keys(data).map((key: string) => {
+        const item = (data as any)[key]
+        if (key !== today && key !== label)
+          item.treeItem.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed
+        else
+          item.treeItem.collapsibleState = vscode.TreeItemCollapsibleState.Expanded
+
         const children = item.children!
         if (children.length) {
           children.forEach((child: any) => {
@@ -156,11 +189,14 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
           return item
         })
       }
+      // 添加每日循环计划
+      result.unshift(this.#dailyInit())
       if (Object.keys(result).length) {
         // button: 添加生成周报
         result.unshift(this.#report())
       }
-      // button: 添加任务
+
+      // button: 添加你的计划
       result.unshift(this.#init())
       return result as any
     }
@@ -206,6 +242,46 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
     this.#gerateLocalConfig()
   }
 
+  addDailyTodo(option: { name: string; time: string }): void {
+    const { name, time } = option
+    const label = `计划: ${name}  ---  开始时间: ${time}`
+    const treeItem = new TodoItem(label, vscode.TreeItemCollapsibleState.Expanded) as any
+    treeItem.command = {
+      command: 'todoList.select',
+      title: label,
+      tooltip: label,
+      arguments: [treeItem],
+    }
+    treeItem.iconPath = {
+      light: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/light/plan.svg')),
+      dark: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/dark/plan.svg')),
+    }
+    this.id = nanoid()
+
+    treeItem.id = this.id
+    treeItem.name = name
+    treeItem.time = time
+    const date = getCurrentDate()
+    treeItem.datetime = `${date} ${time}`
+    const title = '每日提醒计划'
+    treeItem.parent = title
+    let temp: any = {
+      id: 'root',
+      title,
+      children: [],
+      treeItem: new vscode.TreeItem(title, vscode.TreeItemCollapsibleState.Expanded),
+    }
+    if (!this.todos[title])
+      this.todos[title] = temp
+    else
+      temp = this.todos[title]
+
+    temp.children.push(treeItem)
+
+    this.refresh()
+    this.#gerateLocalConfig()
+  }
+
   deleteTodo(item: any): void {
     const { parent, id } = item
     const idx = this.todos[parent]?.children?.findIndex((child: any) => child.id === id)
@@ -226,6 +302,18 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       arrivedPlan = children?.find((child: any) => child.datetime === _datetime)
       if (arrivedPlan)
         break
+    }
+    if (!arrivedPlan) {
+      const now = new Date()
+      const minutes = now.getMinutes().toString()
+      const nowtime = `${now.getHours()}:${minutes.length < 2 ? `0${minutes}` : minutes}`
+      this.todos['每日提醒计划']?.children?.some((child: any) => {
+        if (child.time === nowtime) {
+          arrivedPlan = child
+          return true
+        }
+        return false
+      })
     }
     if (!arrivedPlan)
       return
