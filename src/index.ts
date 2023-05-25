@@ -21,9 +21,16 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // 开启一个定时任务去检测是否达到计划时间，提醒开始任务 每秒检测
   timer = setInterval(() => {
-    if (!todoDataProvider.hasTodo)
+    if (!todoDataProvider.hasTodo || todoDataProvider.pending)
       return
-    todoDataProvider.monitor()
+
+    todoDataProvider.monitor().then((res) => {
+      if (res === 'match') {
+        setTimeout(() => {
+          todoDataProvider.pending = false
+        }, 60000)
+      }
+    })
   }, 1000)
   const addTodoDisposable = vscode.commands.registerCommand('todoList.addTodo', async () => {
     const todoLabel = (await vscode.window.showInputBox({
@@ -42,6 +49,22 @@ export async function activate(context: vscode.ExtensionContext) {
       todoDataProvider.addTodo({ name: todoLabel, time })
   })
 
+  const addDailyTodoDisposable = vscode.commands.registerCommand('todoList.addDailyTodo', async () => {
+    const todoLabel = (await vscode.window.showInputBox({
+      prompt: '输入你的计划名',
+      ignoreFocusOut: true,
+      validateInput: value => value.trim() ? undefined : '计划名不能为空',
+    }))?.trim()
+    const time = (await vscode.window.showInputBox({
+      prompt: '请输入计划开始时间(HH:mm) 24小时制',
+      placeHolder: 'HH:mm',
+      ignoreFocusOut: true,
+      validateInput: value => /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value) ? undefined : '日期格式有误，参考格式:HH:mm',
+    }))?.trim()
+
+    if (time && todoLabel)
+      todoDataProvider.addDailyTodo({ name: todoLabel, time })
+  })
   const selectTodoDisposable = vscode.commands.registerCommand('todoList.select', async (todoItem) => {
     if (!todoItem)
       return
@@ -84,7 +107,7 @@ export async function activate(context: vscode.ExtensionContext) {
     })
   })
 
-  context.subscriptions.push(DailyPlannerViewDisposable, addTodoDisposable, selectTodoDisposable, generateReportDisposable)
+  context.subscriptions.push(addDailyTodoDisposable, DailyPlannerViewDisposable, addTodoDisposable, selectTodoDisposable, generateReportDisposable)
 }
 
 export function deactivate() {

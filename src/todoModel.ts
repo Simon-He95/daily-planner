@@ -21,6 +21,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
 
   private todos: Record<string, { id: string; name?: string; children?: TodoItem[]; time: string; datetime: string }> = {}
   id = '0'
+  public pending = false
   extensionContext: ExtensionContext
   constructor(extensionContext: ExtensionContext, resolve: Function) {
     this.extensionContext = extensionContext
@@ -245,7 +246,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
   addDailyTodo(option: { name: string; time: string }): void {
     const { name, time } = option
     const label = `计划: ${name}  ---  开始时间: ${time}`
-    const treeItem = new TodoItem(label, vscode.TreeItemCollapsibleState.Expanded) as any
+    const treeItem = new TodoItem(label, vscode.TreeItemCollapsibleState.None) as any
     treeItem.command = {
       command: 'todoList.select',
       title: label,
@@ -296,17 +297,17 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
 
   monitor() {
     const _datetime = this.#getTime()
-    let arrivedPlan
+    let arrivedPlan: any
     for (const key in this.todos) {
       const { children } = this.todos[key]
       arrivedPlan = children?.find((child: any) => child.datetime === _datetime)
       if (arrivedPlan)
         break
     }
+    const now = new Date()
+    const minutes = now.getMinutes().toString()
+    const nowtime = `${now.getHours()}:${minutes.length < 2 ? `0${minutes}` : minutes}`
     if (!arrivedPlan) {
-      const now = new Date()
-      const minutes = now.getMinutes().toString()
-      const nowtime = `${now.getHours()}:${minutes.length < 2 ? `0${minutes}` : minutes}`
       this.todos['每日提醒计划']?.children?.some((child: any) => {
         if (child.time === nowtime) {
           arrivedPlan = child
@@ -315,10 +316,16 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
         return false
       })
     }
+    this.pending = false
     if (!arrivedPlan)
-      return
+      return Promise.resolve('no match')
+    this.pending = true
+
     // 弹出提醒
-    vscode.window.showInformationMessage(`Daily Planner计划提醒: \n${arrivedPlan.label}`)
+    return new Promise((resolve) => {
+      vscode.window.showInformationMessage(`Daily Planner计划提醒: \n${arrivedPlan.label}`, '好的')
+      resolve('match')
+    })
   }
 
   #getTime() {

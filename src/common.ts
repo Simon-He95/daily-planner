@@ -27,6 +27,7 @@ export function calculateTime(time: string) {
 }
 
 /**
+ * 年月日
  * 日期比较，左边传入较大，右边传入较小的如果正确返回true否则false，相等也为true
  * @param big 你认为较大的日期
  * @param small 你认为较小的日期
