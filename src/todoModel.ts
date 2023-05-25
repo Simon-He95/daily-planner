@@ -147,7 +147,6 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       return element.children && element.children.sort((a: any, b: any) => calculateTime(a.time) - calculateTime(b.time))
     }
     else {
-      let maxNameLength = 0
       const label = '每日提醒计划'
       const treeItem = new TodoItem(label, vscode.TreeItemCollapsibleState.Expanded)
       const daily = {
@@ -164,32 +163,9 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
           item.treeItem.collapsibleState = vscode.TreeItemCollapsibleState.Collapsed
         else
           item.treeItem.collapsibleState = vscode.TreeItemCollapsibleState.Expanded
-
-        const children = item.children!
-        if (children.length) {
-          children.forEach((child: any) => {
-            maxNameLength = Math.max(child.name.length, maxNameLength)
-          })
-        }
         return item
       })
 
-      // format:格式化内容 根据最长label整齐展示
-      if (maxNameLength > 0) {
-        result.map((item) => {
-          if (item.children) {
-            item.children = item.children.map((child: any) => {
-              const num = maxNameLength - child.name.length
-              if (num > 0) {
-                const before = `计划: ${child.name}`
-                child.label = child.label.replace(before, before + ' '.repeat(num))
-              }
-              return child
-            })
-          }
-          return item
-        })
-      }
       // 添加每日循环计划
       result.unshift(this.#dailyInit())
       if (Object.keys(result).length) {
@@ -205,7 +181,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
 
   addTodo(option: { name: string; time: string }): void {
     const { name, time } = option
-    const label = `计划: ${name}  ---  开始时间: ${time}`
+    const label = `计划: ${name} --- 开始时间: ${time}`
     const treeItem = new TodoItem(label, vscode.TreeItemCollapsibleState.None) as any
     treeItem.command = {
       command: 'todoList.select',

@@ -38,6 +38,8 @@ export async function activate(context: vscode.ExtensionContext) {
       ignoreFocusOut: true,
       validateInput: value => value.trim() ? undefined : '计划名不能为空',
     }))?.trim()
+    if (!todoLabel)
+      return
     const time = (await vscode.window.showInputBox({
       prompt: '请输入计划开始时间(HH:mm) 24小时制',
       placeHolder: 'HH:mm',
@@ -55,6 +57,8 @@ export async function activate(context: vscode.ExtensionContext) {
       ignoreFocusOut: true,
       validateInput: value => value.trim() ? undefined : '计划名不能为空',
     }))?.trim()
+    if (!todoLabel)
+      return
     const time = (await vscode.window.showInputBox({
       prompt: '请输入计划开始时间(HH:mm) 24小时制',
       placeHolder: 'HH:mm',
