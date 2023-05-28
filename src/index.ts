@@ -70,17 +70,19 @@ export async function activate(context: vscode.ExtensionContext) {
       todoDataProvider.addDailyTodo({ name: todoLabel, time })
   })
   const selectTodoDisposable = vscode.commands.registerCommand('todoList.select', async (todoItem) => {
-    if (!todoItem)
-      return
-    const confirm = await vscode.window.showWarningMessage(
-      '是否确实要删除此计划?',
-      { modal: true },
-      '确认',
-    )
-    if (confirm === '确认') {
-      // Delete the item
-      todoDataProvider.deleteTodo(todoItem)
-    }
+    // todo: 点击弹出新的界面 -> 增加描述或者查看描述或者修改描述
+    console.log(todoItem)
+    // if (!todoItem)
+    //   return
+    // const confirm = await vscode.window.showWarningMessage(
+    //   '是否确实要删除此计划?',
+    //   { modal: true },
+    //   '确认',
+    // )
+    // if (confirm === '确认') {
+    //   // Delete the item
+    //   todoDataProvider.deleteTodo(todoItem)
+    // }
   })
 
   const generateReportDisposable = vscode.commands.registerCommand('todoList.generateReport', async (data) => {
@@ -110,8 +112,21 @@ export async function activate(context: vscode.ExtensionContext) {
       vscode.window.showInformationMessage('Daily Planner 周报已生成在当前目录下')
     })
   })
+  const deleteTodoDisposable = vscode.commands.registerCommand('todoList.deleteTodo', async (todoItem) => {
+    if (!todoItem)
+      return
+    const confirm = await vscode.window.showWarningMessage(
+      '是否确实要删除此计划?',
+      { modal: true },
+      '确认',
+    )
+    if (confirm === '确认') {
+    // Delete the item
+      todoDataProvider.deleteTodo(todoItem)
+    }
+  })
 
-  context.subscriptions.push(addDailyTodoDisposable, DailyPlannerViewDisposable, addTodoDisposable, selectTodoDisposable, generateReportDisposable)
+  context.subscriptions.push(deleteTodoDisposable, addDailyTodoDisposable, DailyPlannerViewDisposable, addTodoDisposable, selectTodoDisposable, generateReportDisposable)
 }
 
 export function deactivate() {

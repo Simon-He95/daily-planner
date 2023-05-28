@@ -55,8 +55,25 @@
       {
         "command": "todoList.addTodo",
         "title": "Add Plan"
+      },
+      {
+        "command": "todoList.deleteTodo",
+        "title": "deleteTodo",
+        "icon": {
+          "light": "assets/light/delete.svg",
+          "dark": "assets/dark/delete.svg"
+        }
       }
-    ]
+    ],
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "todoList.deleteTodo",
+          "group": "inline",
+          "when": "view == DailyPlannerView.id && viewItem == todoList"
+        }
+      ]
+    }
   },
   "scripts": {
     "dev": "pnpm build --watch",

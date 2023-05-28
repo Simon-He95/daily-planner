@@ -48,6 +48,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
                 tooltip: label,
                 arguments: [treeItem],
               }
+              treeItem.contextValue = 'todoList'
               treeItem.iconPath = {
                 light: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/light/plan.svg')),
                 dark: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/dark/plan.svg')),
@@ -155,6 +156,8 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
         treeItem,
         children: [],
       }
+      treeItem.contextValue = 'todoList'
+
       const today = getCurrentDate()
       const data = { [label]: daily, ...this.todos }
       const result = Object.keys(data).map((key: string) => {
@@ -197,11 +200,13 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
 
     treeItem.id = this.id
     treeItem.name = name
+    treeItem.contextValue = 'todoList'
     treeItem.time = time
     const date = getCurrentDate()
     treeItem.datetime = `${date} ${time}`
     treeItem.parent = date
     const title = `${date} ${getDay()}`
+
     let temp: any = {
       id: 'root',
       title,
