@@ -134,7 +134,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
 
   get hasTodo() {
     // 查看今日的计划是否有指定
-    return !!this.todos[getCurrentDate()] || !!this.todos['每日提醒计划']?.children?.length
+    return !!this.todos[getCurrentDate()]
   }
 
   getTreeItem(element: any): vscode.TreeItem {
