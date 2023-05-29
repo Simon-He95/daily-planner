@@ -40,10 +40,9 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
             id,
             title,
             children: children.map((child: any) => {
-              const { label, name, time, parent, id } = child
+              const { label, name, time, parent, id, detail } = child
               const treeItem = new TodoItem(label, vscode.TreeItemCollapsibleState.None) as any
               treeItem.command = {
-                command: 'todoList.select',
                 title: label,
                 tooltip: label,
                 arguments: [treeItem],
@@ -53,6 +52,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
                 light: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/light/plan.svg')),
                 dark: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/dark/plan.svg')),
               }
+              treeItem.detail = detail
               this.id = id
               treeItem.id = String(id)
               treeItem.name = name
@@ -187,7 +187,6 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
     const label = `计划: ${name} --- 开始时间: ${time}`
     const treeItem = new TodoItem(label, vscode.TreeItemCollapsibleState.None) as any
     treeItem.command = {
-      command: 'todoList.select',
       title: label,
       tooltip: label,
       arguments: [treeItem],
@@ -229,7 +228,6 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
     const label = `计划: ${name}  ---  开始时间: ${time}`
     const treeItem = new TodoItem(label, vscode.TreeItemCollapsibleState.None) as any
     treeItem.command = {
-      command: 'todoList.select',
       title: label,
       tooltip: label,
       arguments: [treeItem],
@@ -259,6 +257,21 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       temp = this.todos[title]
 
     temp.children.push(treeItem)
+
+    this.refresh()
+    this.#gerateLocalConfig()
+  }
+
+  addDetail(item: any, detail: string) {
+    const { parent, id } = item
+    const treeItem = this.todos[parent].children?.find(child => child.id === id) as any
+    if (!treeItem)
+      return
+    if (!treeItem.detail)
+      treeItem.label += ` --- 详情: ${detail}`
+    else
+      treeItem.label = treeItem.label.replace(` --- 详情: ${treeItem.detail}`, ` --- 详情: ${detail}`)
+    treeItem.detail = detail
 
     this.refresh()
     this.#gerateLocalConfig()

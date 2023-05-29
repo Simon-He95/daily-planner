@@ -69,20 +69,16 @@ export async function activate(context: vscode.ExtensionContext) {
     if (time && todoLabel)
       todoDataProvider.addDailyTodo({ name: todoLabel, time })
   })
-  const selectTodoDisposable = vscode.commands.registerCommand('todoList.select', async (todoItem) => {
+  const addDetailDisposable = vscode.commands.registerCommand('todoList.addDetail', async (todoItem) => {
     // todo: 点击弹出新的界面 -> 增加描述或者查看描述或者修改描述
-    console.log(todoItem)
-    // if (!todoItem)
-    //   return
-    // const confirm = await vscode.window.showWarningMessage(
-    //   '是否确实要删除此计划?',
-    //   { modal: true },
-    //   '确认',
-    // )
-    // if (confirm === '确认') {
-    //   // Delete the item
-    //   todoDataProvider.deleteTodo(todoItem)
-    // }
+    const detail = (await vscode.window.showInputBox({
+      prompt: '输入一些详情描述',
+      ignoreFocusOut: true,
+      value: todoItem.detail,
+      validateInput: value => value.trim() ? undefined : '详情描述不能为空',
+    }))?.trim()
+    if (detail)
+      todoDataProvider.addDetail(todoItem, detail)
   })
 
   const generateReportDisposable = vscode.commands.registerCommand('todoList.generateReport', async (data) => {
@@ -97,6 +93,7 @@ export async function activate(context: vscode.ExtensionContext) {
         result += `## ${title} \n`
         children.forEach((child: any) => {
           result += `- ${child.label}\n`
+          result += ` - ${child.detail}\n`
         })
         result += '\n'
       }
@@ -121,7 +118,7 @@ export async function activate(context: vscode.ExtensionContext) {
       '确认',
     )
     if (confirm === '确认') {
-    // Delete the item
+      // Delete the item
       todoDataProvider.deleteTodo(todoItem)
     }
   })
@@ -148,11 +145,11 @@ export async function activate(context: vscode.ExtensionContext) {
     if (time)
       todoItem.time = time
     if (todoLabel)
-      todoItem.label = todoItem.label.replace(todoItem.name, todoLabel)
+      todoItem.label = todoItem.label.replace(`计划: ${todoItem.name}`, `计划: ${todoLabel}`)
     todoDataProvider.updateTodo(todoItem)
   })
 
-  context.subscriptions.push(editTodoDisposable, deleteTodoDisposable, addDailyTodoDisposable, DailyPlannerViewDisposable, addTodoDisposable, selectTodoDisposable, generateReportDisposable)
+  context.subscriptions.push(editTodoDisposable, deleteTodoDisposable, addDailyTodoDisposable, DailyPlannerViewDisposable, addTodoDisposable, addDetailDisposable, generateReportDisposable)
 }
 
 export function deactivate() {

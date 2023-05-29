@@ -71,6 +71,14 @@
           "light": "assets/light/delete.svg",
           "dark": "assets/dark/delete.svg"
         }
+      },
+      {
+        "command": "todoList.addDetail",
+        "title": "addDetail",
+        "icon": {
+          "light": "assets/light/detail.svg",
+          "dark": "assets/dark/detail.svg"
+        }
       }
     ],
     "menus": {
@@ -82,6 +90,11 @@
         },
         {
           "command": "todoList.deleteTodo",
+          "group": "inline",
+          "when": "view == DailyPlannerView.id && viewItem == todoList"
+        },
+        {
+          "command": "todoList.addDetail",
           "group": "inline",
           "when": "view == DailyPlannerView.id && viewItem == todoList"
         }
