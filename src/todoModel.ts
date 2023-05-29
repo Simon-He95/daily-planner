@@ -276,6 +276,14 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
     this.#gerateLocalConfig()
   }
 
+  updateTodo(item: any): void {
+    const { parent, id } = item
+    const idx = this.todos[parent]?.children?.findIndex((child: any) => child.id === id)
+    this.todos[parent]?.children?.splice(idx!, 1, item)
+    this.refresh()
+    this.#gerateLocalConfig()
+  }
+
   monitor() {
     const _datetime = this.#getTime()
     let arrivedPlan: any

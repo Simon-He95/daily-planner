@@ -125,8 +125,34 @@ export async function activate(context: vscode.ExtensionContext) {
       todoDataProvider.deleteTodo(todoItem)
     }
   })
+  const editTodoDisposable = vscode.commands.registerCommand('todoList.editTodo', async (todoItem) => {
+    if (!todoItem)
+      return
+    const todoLabel = (await vscode.window.showInputBox({
+      prompt: '输入你的计划名',
+      value: todoItem.name,
+      ignoreFocusOut: true,
+      validateInput: value => value.trim() ? undefined : '计划名不能为空',
+    }))?.trim()
 
-  context.subscriptions.push(deleteTodoDisposable, addDailyTodoDisposable, DailyPlannerViewDisposable, addTodoDisposable, selectTodoDisposable, generateReportDisposable)
+    const time = (await vscode.window.showInputBox({
+      prompt: '请输入计划开始时间(HH:mm) 24小时制',
+      placeHolder: 'HH:mm',
+      value: todoItem.time,
+      ignoreFocusOut: true,
+      validateInput: value => /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(value) ? undefined : '日期格式有误，参考格式:HH:mm',
+    }))?.trim()
+    if (!time && !todoLabel)
+      return
+    // update todoList
+    if (time)
+      todoItem.time = time
+    if (todoLabel)
+      todoItem.label = todoItem.label.replace(todoItem.name, todoLabel)
+    todoDataProvider.updateTodo(todoItem)
+  })
+
+  context.subscriptions.push(editTodoDisposable, deleteTodoDisposable, addDailyTodoDisposable, DailyPlannerViewDisposable, addTodoDisposable, selectTodoDisposable, generateReportDisposable)
 }
 
 export function deactivate() {

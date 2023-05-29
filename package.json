@@ -57,6 +57,14 @@
         "title": "Add Plan"
       },
       {
+        "command": "todoList.editTodo",
+        "title": "editTodo",
+        "icon": {
+          "light": "assets/light/edit.svg",
+          "dark": "assets/dark/edit.svg"
+        }
+      },
+      {
         "command": "todoList.deleteTodo",
         "title": "deleteTodo",
         "icon": {
@@ -67,6 +75,11 @@
     ],
     "menus": {
       "view/item/context": [
+        {
+          "command": "todoList.editTodo",
+          "group": "inline",
+          "when": "view == DailyPlannerView.id && viewItem == todoList"
+        },
         {
           "command": "todoList.deleteTodo",
           "group": "inline",
