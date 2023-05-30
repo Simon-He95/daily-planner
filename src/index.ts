@@ -1,11 +1,12 @@
 import fsp from 'node:fs/promises'
 import * as vscode from 'vscode'
 import { TodoDataProvider } from './todoModel'
-import { compareDay, getCurrentDate, getDayFirst } from './common'
+import { calculateTime, compareDay, getCurrentDate, getDayFirst } from './common'
 
 let timer: any = null
 export async function activate(context: vscode.ExtensionContext) {
   let isClosed = false
+
   const todoDataProvider = new TodoDataProvider(context, () => {
     if (!isClosed && !todoDataProvider.hasTodo) {
       vscode.window.showInformationMessage('您还没有添加今日的计划，是否开启今日计划?', '添加计划', '忽略')
@@ -17,6 +18,7 @@ export async function activate(context: vscode.ExtensionContext) {
         })
     }
   })
+
   const DailyPlannerViewDisposable = vscode.window.registerTreeDataProvider('DailyPlannerView.id', todoDataProvider)
 
   // 开启一个定时任务去检测是否达到计划时间，提醒开始任务 每秒检测
@@ -32,6 +34,7 @@ export async function activate(context: vscode.ExtensionContext) {
       }
     })
   }, 1000)
+
   const addTodoDisposable = vscode.commands.registerCommand('todoList.addTodo', async () => {
     const todoLabel = (await vscode.window.showInputBox({
       prompt: '输入你的计划名',
@@ -69,6 +72,7 @@ export async function activate(context: vscode.ExtensionContext) {
     if (time && todoLabel)
       todoDataProvider.addDailyTodo({ name: todoLabel, time })
   })
+
   const addDetailDisposable = vscode.commands.registerCommand('todoList.addDetail', async (todoItem) => {
     // todo: 点击弹出新的界面 -> 增加描述或者查看描述或者修改描述
     const detail = (await vscode.window.showInputBox({
@@ -92,7 +96,7 @@ export async function activate(context: vscode.ExtensionContext) {
         const { title, children } = data[key]
         result += `## ${title} \n`
         children.forEach((child: any) =>
-          result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
+          result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${calculateTime(child.time) > calculateTime('1:00') ? 'AM' : 'PM'} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
         )
         result += '\n'
       }
