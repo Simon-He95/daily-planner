@@ -1,9 +1,11 @@
 import fsp from 'node:fs/promises'
 import * as vscode from 'vscode'
+import ClaudeApi from 'anthropic-ai'
 import { TodoDataProvider } from './todoModel'
 import { calculateTime, compareDay, getCurrentDate, getDayFirst } from './common'
 
 let timer: any = null
+let claude: ClaudeApi
 export async function activate(context: vscode.ExtensionContext) {
   let isClosed = false
 
@@ -89,6 +91,10 @@ export async function activate(context: vscode.ExtensionContext) {
     // 生成周报
     const today = getCurrentDate()
     const firstDay = getDayFirst()
+
+    if (!claude)
+      claude = new ClaudeApi('')
+
     let result = '# Daily Planner 周报 \n\n'
     // 计算周一到今天的数据生成周报
     Object.keys(data).forEach((key) => {
@@ -102,9 +108,20 @@ export async function activate(context: vscode.ExtensionContext) {
       }
     })
     // 生产markdown类型周报
+
     const folders = vscode.workspace.workspaceFolders
     if (!folders)
       return
+    try {
+      const summary = await claude.complete(`\n\nHuman: 假设你是一个写周报的达人,请你能根据我以下给出的markdown格式内容,进行提炼、润色和总结,给出这样的结果"## 本周计划总结: 提炼的总结\n## 工作中遇到的问题: \n如果有,则总结, 无则写无\n"\n\n注意不要生成额外冗余的信息\n\n
+        ${result}\n\nAssistant:`, {
+        model: 'claude-v1.3-100k',
+      })
+      result += `${summary.trim()}`
+    }
+    catch (error) {
+    }
+
     const rootpath = folders[0].uri.fsPath
     // 根据操作的日期对应文件名
     const reportUri = `${rootpath}/daily-planner__report-${today}.md`
@@ -117,6 +134,7 @@ export async function activate(context: vscode.ExtensionContext) {
       })
     })
   })
+
   const deleteTodoDisposable = vscode.commands.registerCommand('todoList.deleteTodo', async (todoItem) => {
     if (!todoItem)
       return
@@ -130,6 +148,7 @@ export async function activate(context: vscode.ExtensionContext) {
       todoDataProvider.deleteTodo(todoItem)
     }
   })
+
   const editTodoDisposable = vscode.commands.registerCommand('todoList.editTodo', async (todoItem) => {
     if (!todoItem)
       return

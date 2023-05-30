@@ -16,6 +16,9 @@ devDependencies:
   '@types/vscode':
     specifier: ^1.77.0
     version: 1.77.0
+  anthropic-ai:
+    specifier: ^0.0.7
+    version: 0.0.7
   bumpp:
     specifier: ^9.1.0
     version: 9.1.0
@@ -888,6 +891,10 @@ packages:
   /ansi-styles@6.2.1:
     resolution: {integrity: sha512-bN798gFfQX+viw3R7yrGWRqnrN2oRkEkUjjl4JNn4E8GxxbjtG3FbrEIIY3l8/hrwUwIeCZvi4QuOTP4MErVug==}
     engines: {node: '>=12'}
+    dev: true
+
+  /anthropic-ai@0.0.7:
+    resolution: {integrity: sha512-R5wVP9FItSs2VyHfHBISHsZyZH5LUBuhyqag0i38sCKWKyJekDH9eueNj89OsgoqXhcq9ONI6apzOVP17HiqpQ==}
     dev: true
 
   /any-promise@1.3.0:
