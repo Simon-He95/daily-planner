@@ -156,7 +156,6 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
         treeItem,
         children: [],
       }
-      treeItem.contextValue = 'todoList'
 
       const today = getCurrentDate()
       const data = { [label]: daily, ...this.todos }
@@ -245,6 +244,8 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
     treeItem.datetime = `${date} ${time}`
     const title = '每日提醒计划'
     treeItem.parent = title
+    treeItem.contextValue = 'todoList'
+
     let temp: any = {
       id: 'root',
       title,
