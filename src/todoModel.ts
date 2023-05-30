@@ -105,8 +105,8 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
     }
 
     treeItem.iconPath = {
-      light: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/light/add.svg')),
-      dark: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/dark/add.svg')),
+      light: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/light/daily.svg')),
+      dark: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/dark/daily.svg')),
     }
 
     return treeItem

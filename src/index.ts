@@ -129,6 +129,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const editTodoDisposable = vscode.commands.registerCommand('todoList.editTodo', async (todoItem) => {
     if (!todoItem)
       return
+
     const todoLabel = (await vscode.window.showInputBox({
       prompt: '输入你的计划名',
       value: todoItem.name,
@@ -146,10 +147,14 @@ export async function activate(context: vscode.ExtensionContext) {
     if (!time && !todoLabel)
       return
     // update todoList
-    if (time)
+    if (time) {
+      todoItem.label = todoItem.label.replace(`开始时间: ${todoItem.time}`, `开始时间: ${time}`)
       todoItem.time = time
-    if (todoLabel)
+    }
+    if (todoLabel) {
       todoItem.label = todoItem.label.replace(`计划: ${todoItem.name}`, `计划: ${todoLabel}`)
+      todoItem.name = todoLabel
+    }
     todoDataProvider.updateTodo(todoItem)
   })
 
