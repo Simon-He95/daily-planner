@@ -113,8 +113,8 @@ export async function activate(context: vscode.ExtensionContext) {
     if (!folders)
       return
     try {
-      const summary = await claude.complete(`\n\nHuman: 假设你是一个写周报的达人,请你能根据我以下给出的markdown格式内容,进行提炼、润色和总结,给出这样的结果"## 本周计划总结: 提炼的总结\n## 工作中遇到的问题: \n如果有,则总结, 无则写无\n"\n\n注意不要生成额外冗余的信息\n\n
-        ${result}\n\nAssistant:`, {
+      const summary = await claude.complete(`假设你是一个写周报的达人,请你能根据我以下给出的markdown格式内容,进行提炼、润色和总结,给出这样的结果"## 本周计划总结: 提炼的总结\n## 工作中遇到的问题: \n如果有,则总结, 无则写无\n"\n\n注意不要生成额外冗余的信息\n\n
+        ${result}`, {
         model: 'claude-v1.3-100k',
       })
       result += `${summary.trim()}`
