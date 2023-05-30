@@ -102,7 +102,8 @@ export async function activate(context: vscode.ExtensionContext) {
     if (!folders)
       return
     const rootpath = folders[0].uri.fsPath
-    const reportUri = `${rootpath}/daily-planner__report.md`
+    // 根据操作的日期对应文件名
+    const reportUri = `${rootpath}/daily-planner__report-${today}.md`
     fsp.writeFile(reportUri, result, 'utf-8').catch((err) => {
       vscode.window.showErrorMessage(err.message)
     }).then(() => {
