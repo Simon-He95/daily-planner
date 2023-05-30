@@ -65,19 +65,19 @@
         }
       },
       {
-        "command": "todoList.deleteTodo",
-        "title": "deleteTodo",
-        "icon": {
-          "light": "assets/light/delete.svg",
-          "dark": "assets/dark/delete.svg"
-        }
-      },
-      {
         "command": "todoList.addDetail",
         "title": "addDetail",
         "icon": {
           "light": "assets/light/detail.svg",
           "dark": "assets/dark/detail.svg"
+        }
+      },
+      {
+        "command": "todoList.deleteTodo",
+        "title": "deleteTodo",
+        "icon": {
+          "light": "assets/light/delete.svg",
+          "dark": "assets/dark/delete.svg"
         }
       }
     ],
@@ -85,17 +85,17 @@
       "view/item/context": [
         {
           "command": "todoList.editTodo",
-          "group": "inline",
-          "when": "view == DailyPlannerView.id && viewItem == todoList"
-        },
-        {
-          "command": "todoList.deleteTodo",
-          "group": "inline",
+          "group": "inline@2",
           "when": "view == DailyPlannerView.id && viewItem == todoList"
         },
         {
           "command": "todoList.addDetail",
-          "group": "inline",
+          "group": "inline@1",
+          "when": "view == DailyPlannerView.id && viewItem == todoList"
+        },
+        {
+          "command": "todoList.deleteTodo",
+          "group": "inline@3",
           "when": "view == DailyPlannerView.id && viewItem == todoList"
         }
       ]
