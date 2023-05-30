@@ -91,10 +91,9 @@ export async function activate(context: vscode.ExtensionContext) {
       if (compareDay(key, firstDay) && compareDay(today, key)) {
         const { title, children } = data[key]
         result += `## ${title} \n`
-        children.forEach((child: any) => {
-          result += `- 🎯 ${child.name} --- ⏰ ${child.time}\n`
-          result += child.detail ? `  - 💬 ${child.detail}` : ''
-        })
+        children.forEach((child: any) =>
+          result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
+        )
         result += '\n'
       }
     })
@@ -103,10 +102,14 @@ export async function activate(context: vscode.ExtensionContext) {
     if (!folders)
       return
     const rootpath = folders[0].uri.fsPath
-    fsp.writeFile(`${rootpath}/daily-planner__report.md`, result, 'utf-8').catch((err) => {
+    const reportUri = `${rootpath}/daily-planner__report.md`
+    fsp.writeFile(reportUri, result, 'utf-8').catch((err) => {
       vscode.window.showErrorMessage(err.message)
     }).then(() => {
-      vscode.window.showInformationMessage('Daily Planner 周报已生成在当前目录下')
+      vscode.window.showInformationMessage('Daily Planner 周报已生成在当前目录下', '打开周报').then((val) => {
+        if (val === '打开周报')
+          vscode.workspace.openTextDocument(reportUri).then(doc => vscode.window.showTextDocument(doc))
+      })
     })
   })
   const deleteTodoDisposable = vscode.commands.registerCommand('todoList.deleteTodo', async (todoItem) => {
