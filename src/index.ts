@@ -92,8 +92,8 @@ export async function activate(context: vscode.ExtensionContext) {
         const { title, children } = data[key]
         result += `## ${title} \n`
         children.forEach((child: any) => {
-          result += `- ${child.label}\n`
-          result += ` - ${child.detail}\n`
+          result += `- 🎯 ${child.name} --- ⏰ ${child.time}\n`
+          result += child.detail ? `  - 💬 ${child.detail}` : ''
         })
         result += '\n'
       }
