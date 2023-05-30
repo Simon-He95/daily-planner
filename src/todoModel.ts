@@ -342,7 +342,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       result[key] = {
         title,
         id,
-        children: children?.map((child: any) => ({ id: child.id, label: child.label, name: child.name, time: child.time, parent: child.parent })),
+        children: children?.map((child: any) => ({ id: child.id, label: child.label, name: child.name, time: child.time, parent: child.parent, detail: child.detail })),
       }
       return result
     }, {} as any))
