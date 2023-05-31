@@ -48,9 +48,10 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
                 arguments: [treeItem],
               }
               treeItem.contextValue = 'todoList'
+              const isAm = calculateTime(time) < calculateTime('13:00')
               treeItem.iconPath = {
-                light: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/light/plan.svg')),
-                dark: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/dark/plan.svg')),
+                light: vscode.Uri.file(this.extensionContext.asAbsolutePath(isAm ? 'assets/light/day.svg' : 'assets/dark/night.svg')),
+                dark: vscode.Uri.file(this.extensionContext.asAbsolutePath(isAm ? 'assets/dark/day.svg' : 'assets/light/night.svg')),
               }
               treeItem.detail = detail
               this.id = id
@@ -112,19 +113,18 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
     return treeItem
   }
 
-  #report() {
-    const title = '生成本周周报'
+  #report(title: '生成周报' | '生成日报') {
     const treeItem = new TodoItem(title, vscode.TreeItemCollapsibleState.None) as any
-    treeItem.id = 'generate report'
+    treeItem.id = `generate ${title}`
     treeItem.command = {
       command: 'todoList.generateReport',
       title,
       tooltip: title,
-      arguments: [this.todos],
+      arguments: [this.todos, title],
     }
     treeItem.iconPath = {
-      light: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/light/report.svg')),
-      dark: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/dark/report.svg')),
+      light: vscode.Uri.file(this.extensionContext.asAbsolutePath(title === '生成周报' ? 'assets/light/seven.svg' : 'assets/dark/one.svg')),
+      dark: vscode.Uri.file(this.extensionContext.asAbsolutePath(title === '生成周报' ? 'assets/dark/seven.svg' : 'assets/light/one.svg')),
     }
     return treeItem
   }
@@ -172,7 +172,8 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       result.unshift(this.#dailyInit())
       if (Object.keys(result).length) {
         // button: 添加生成周报
-        result.unshift(this.#report())
+        result.unshift(this.#report('生成周报'))
+        result.unshift(this.#report('生成日报'))
       }
 
       // button: 添加你的计划
@@ -190,9 +191,10 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       tooltip: label,
       arguments: [treeItem],
     }
+    const isAm = calculateTime(time) < calculateTime('13:00')
     treeItem.iconPath = {
-      light: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/light/plan.svg')),
-      dark: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/dark/plan.svg')),
+      light: vscode.Uri.file(this.extensionContext.asAbsolutePath(isAm ? 'assets/light/day.svg' : 'assets/dark/night.svg')),
+      dark: vscode.Uri.file(this.extensionContext.asAbsolutePath(isAm ? 'assets/dark/day.svg' : 'assets/light/night.svg')),
     }
     this.id = nanoid()
 
@@ -231,9 +233,10 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       tooltip: label,
       arguments: [treeItem],
     }
+    const isAm = calculateTime(time) < calculateTime('13:00')
     treeItem.iconPath = {
-      light: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/light/plan.svg')),
-      dark: vscode.Uri.file(this.extensionContext.asAbsolutePath('assets/dark/plan.svg')),
+      light: vscode.Uri.file(this.extensionContext.asAbsolutePath(isAm ? 'assets/light/day.svg' : 'assets/dark/night.svg')),
+      dark: vscode.Uri.file(this.extensionContext.asAbsolutePath(isAm ? 'assets/dark/day.svg' : 'assets/light/night.svg')),
     }
     this.id = nanoid()
 

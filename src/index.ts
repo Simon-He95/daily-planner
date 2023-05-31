@@ -87,33 +87,50 @@ export async function activate(context: vscode.ExtensionContext) {
       todoDataProvider.addDetail(todoItem, detail)
   })
 
-  const generateReportDisposable = vscode.commands.registerCommand('todoList.generateReport', async (data) => {
+  const generateReportDisposable = vscode.commands.registerCommand('todoList.generateReport', async (data, title) => {
     // 生成周报
+    const isWeekly = title === '生成周报'
     const today = getCurrentDate()
     const firstDay = getDayFirst()
 
-    if (!claude)
-      claude = new ClaudeApi('')
+    let result = ''
+    if (isWeekly) {
+      result = '# Daily Planner 周报 \n\n'
+      // 计算周一到今天的数据生成周报
+      Object.keys(data).forEach((key) => {
+        if (compareDay(key, firstDay) && compareDay(today, key)) {
+          const { title, children } = data[key]
+          result += `## ${title} \n`
+          children.forEach((child: any) =>
+            result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${calculateTime(child.time) > calculateTime('1:00') ? 'AM' : 'PM'} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
+          )
+          result += '\n'
+        }
+      })
+    }
+    else {
+      result = '# Daily Planner 日报 \n\n'
+      const list = data[today]
+      if (!list)
+        return vscode.window.showInformationMessage('今天还没有填写任何计划呢')
 
-    let result = '# Daily Planner 周报 \n\n'
-    // 计算周一到今天的数据生成周报
-    Object.keys(data).forEach((key) => {
-      if (compareDay(key, firstDay) && compareDay(today, key)) {
-        const { title, children } = data[key]
-        result += `## ${title} \n`
-        children.forEach((child: any) =>
-          result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${calculateTime(child.time) > calculateTime('1:00') ? 'AM' : 'PM'} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
-        )
-        result += '\n'
-      }
-    })
+      const { title, children } = list
+      result += `## ${title} \n`
+      children.forEach((child: any) =>
+        result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${calculateTime(child.time) > calculateTime('1:00') ? 'AM' : 'PM'} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
+      )
+      result += '\n'
+    }
+
     // 生产markdown类型周报
 
     const folders = vscode.workspace.workspaceFolders
     if (!folders)
       return
     try {
-      const summary = await claude.complete(`假设你是一个写周报的达人,请你能根据我以下给出的markdown格式内容,进行提炼、润色和总结,给出这样的结果"## 本周计划总结: 提炼的总结\n## 工作中遇到的问题: \n如果有,则总结, 无则写无\n"\n\n注意不要生成额外冗余的信息\n\n
+      if (!claude)
+        claude = new ClaudeApi('')
+      const summary = await claude.complete(`假设你是一个写${isWeekly ? '周' : '日'}报的达人,请你能根据我以下给出的markdown格式内容,进行提炼、润色和总结,给出这样的结果"## 本周计划总结: 提炼的总结\n## 工作中遇到的问题: \n如果有,则总结, 无则写无\n"\n\n注意不要生成额外冗余的信息\n\n
         ${result}`, {
         model: 'claude-v1.3-100k',
       })
@@ -124,11 +141,11 @@ export async function activate(context: vscode.ExtensionContext) {
 
     const rootpath = folders[0].uri.fsPath
     // 根据操作的日期对应文件名
-    const reportUri = `${rootpath}/daily-planner__report-${today}.md`
+    const reportUri = `${rootpath}/daily-planner__${isWeekly ? 'week' : 'day'}-report-${today}.md`
     fsp.writeFile(reportUri, result, 'utf-8').catch((err) => {
       vscode.window.showErrorMessage(err.message)
     }).then(() => {
-      vscode.window.showInformationMessage('Daily Planner 周报已生成在当前目录下', '打开周报').then((val) => {
+      vscode.window.showInformationMessage(`Daily Planner ${isWeekly ? '周' : '日'}报已生成在当前目录下`, `打开${isWeekly ? '周' : '日'}报`).then((val) => {
         if (val === '打开周报')
           vscode.workspace.openTextDocument(reportUri).then(doc => vscode.window.showTextDocument(doc))
       })
