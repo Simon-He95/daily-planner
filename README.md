@@ -14,6 +14,9 @@ instruction:
 ## Feature
 - Add AI to automatically summarize weekly reports based on plan
 - The plan supports adding, deleting, modifying, and checking
+
+![demo](assets/demo.gif)
+
 ## :coffee:
 
 [buy me a cup of coffee](https://github.com/Simon-He95/sponsor)

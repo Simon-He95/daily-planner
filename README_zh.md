@@ -14,6 +14,8 @@
 - 添加ai, 根据计划自动总结周报
 - 计划支持增、删、改、查
 
+![demo](assets/demo.gif)
+
 ## :coffee:
 
 [请我喝一杯咖啡](https://github.com/Simon-He95/sponsor)
