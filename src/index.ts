@@ -76,15 +76,13 @@ export async function activate(context: vscode.ExtensionContext) {
   })
 
   const addDetailDisposable = vscode.commands.registerCommand('todoList.addDetail', async (todoItem) => {
-    // todo: 点击弹出新的界面 -> 增加描述或者查看描述或者修改描述
     const detail = (await vscode.window.showInputBox({
       prompt: '输入一些详情描述',
       ignoreFocusOut: true,
       value: todoItem.detail,
       validateInput: value => value.trim() ? undefined : '详情描述不能为空',
-    }))?.trim()
-    if (detail)
-      todoDataProvider.addDetail(todoItem, detail)
+    }))?.trim() ?? ''
+    todoDataProvider.addDetail(todoItem, detail)
   })
 
   const generateReportDisposable = vscode.commands.registerCommand('todoList.generateReport', async (data, title) => {

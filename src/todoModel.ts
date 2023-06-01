@@ -271,7 +271,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
     const treeItem = this.todos[parent].children?.find(child => child.id === id) as any
     if (!treeItem)
       return
-    const _detail = ` --- 详情: ${detail}`
+    const _detail = detail ? ` --- 详情: ${detail}` : ''
     if (!treeItem.detail)
       treeItem.label += _detail
     else
