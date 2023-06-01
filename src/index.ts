@@ -146,7 +146,7 @@ export async function activate(context: vscode.ExtensionContext) {
       vscode.window.showErrorMessage(err.message)
     }).then(() => {
       vscode.window.showInformationMessage(`Daily Planner ${isWeekly ? '周' : '日'}报已生成在当前目录下`, `打开${isWeekly ? '周' : '日'}报`).then((val) => {
-        if (val === '打开周报')
+        if (val)
           vscode.workspace.openTextDocument(reportUri).then(doc => vscode.window.showTextDocument(doc))
       })
     })
