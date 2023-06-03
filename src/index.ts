@@ -83,8 +83,10 @@ export async function activate(context: vscode.ExtensionContext) {
       }
     })
   })
-
+  let reportIsWorking = false
   const generateReportDisposable = vscode.commands.registerCommand('todoList.generateReport', async (data, title) => {
+    if (reportIsWorking)
+      return vscode.window.showInformationMessage('当前正在生成中，请耐心等待...')
     // 生成周报
     const isWeekly = title === '生成周报'
     const today = getCurrentDate()
@@ -118,9 +120,9 @@ export async function activate(context: vscode.ExtensionContext) {
       )
       result += '\n'
     }
+    reportIsWorking = true
 
     // 生产markdown类型周报
-
     const folders = vscode.workspace.workspaceFolders
     if (!folders)
       return
@@ -143,6 +145,7 @@ export async function activate(context: vscode.ExtensionContext) {
       vscode.window.showErrorMessage(err.message)
     }).then(() => {
       vscode.window.showInformationMessage(`Daily Planner ${isWeekly ? '周' : '日'}报已生成在当前目录下`, `打开${isWeekly ? '周' : '日'}报`).then((val) => {
+        reportIsWorking = false
         if (val)
           vscode.workspace.openTextDocument(reportUri).then(doc => vscode.window.showTextDocument(doc))
       })
