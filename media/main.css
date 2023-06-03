@@ -1,0 +1,116 @@
+body {
+	background-color: #fff;
+}
+
+.el-form {
+	padding: 24px;
+	margin-top: 20px;
+}
+
+.user {
+	position: relative;
+	width: 100%;
+	padding: 20px;
+	height: 70px;
+}
+
+.user .bg {
+	position: absolute;
+	box-sizing: border-box;
+	width: 100%;
+	top: 0;
+	left: 0;
+	padding: 10px 20px;
+	height: 70px;
+	background: linear-gradient(-45deg, #bd34fe 50%, #47caff 50%);
+	filter: blur(72px);
+}
+
+.user .avater {
+	display: flex;
+	position: relative;
+	width: fit-content;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 5px;
+	z-index: 40;
+}
+
+.user .avater img {
+	display: block;
+	transition: all .6s;
+	width: 50px;
+	height: 50px;
+	object-fit: contain;
+}
+
+.user .avater img:hover {
+	transform: scale(1.2);
+	cursor: pointer;
+}
+
+.user .name {
+	background: -webkit-linear-gradient(120deg, #ffa500 30%, #f4f468);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	text-shadow: 5px 10px 2px rgba(0, 0, 0, .1);
+}
+
+.user .title {
+	width: 100%;
+	text-align: center;
+	height: 70px;
+	font-size: 24px;
+	color: #ffff;
+	line-height: 70px;
+	position: absolute;
+	z-index: 15;
+	left: 0;
+	top: 0;
+	text-shadow: 1px 1px rgba(0, 173, 181, .2882),
+		2px 2px rgba(0, 173, 181, .2882),
+		3px 3px rgba(0, 173, 181, .2882),
+		4px 4px rgba(0, 173, 181, .2882);
+}
+
+#app .github-corner {
+	cursor: pointer;
+	z-index: 9999;
+	position: fixed;
+	top: 0;
+	right: 0;
+}
+
+.github-corner:hover .octo-arm {
+	animation: octocat-wave 560ms ease-in-out
+}
+
+@keyframes octocat-wave {
+
+	0%,
+	100% {
+		transform: rotate(0)
+	}
+
+	20%,
+	60% {
+		transform: rotate(-25deg)
+	}
+
+	40%,
+	80% {
+		transform: rotate(10deg)
+	}
+}
+
+@media (max-width:500px) {
+	.github-corner:hover .octo-arm {
+		animation: none
+	}
+
+	.github-corner .octo-arm {
+		animation: octocat-wave 560ms ease-in-out
+	}
+}

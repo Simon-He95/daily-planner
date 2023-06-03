@@ -65,14 +65,6 @@
         }
       },
       {
-        "command": "todoList.addDetail",
-        "title": "addDetail",
-        "icon": {
-          "light": "assets/light/detail.svg",
-          "dark": "assets/dark/detail.svg"
-        }
-      },
-      {
         "command": "todoList.deleteTodo",
         "title": "deleteTodo",
         "icon": {
@@ -86,11 +78,6 @@
         {
           "command": "todoList.editTodo",
           "group": "inline@2",
-          "when": "view == DailyPlannerView.id && viewItem == todoList"
-        },
-        {
-          "command": "todoList.addDetail",
-          "group": "inline@1",
           "when": "view == DailyPlannerView.id && viewItem == todoList"
         },
         {

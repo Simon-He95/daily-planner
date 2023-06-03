@@ -45,6 +45,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
               treeItem.command = {
                 title: label,
                 tooltip: label,
+                command: 'todoList.view',
                 arguments: [treeItem],
               }
               treeItem.contextValue = 'todoList'
@@ -182,11 +183,12 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
     }
   }
 
-  addTodo(option: { name: string; time: string }): void {
-    const { name, time } = option
-    const label = `计划: ${name} --- 开始时间: ${time}`
+  addTodo(option: { name: string; time: string; detail?: string }): void {
+    const { name, time, detail } = option
+    const label = `计划: ${name} --- 开始时间: ${time}${detail ? ` --- 详情: ${detail}` : ''}`
     const treeItem = new TodoItem(label, vscode.TreeItemCollapsibleState.None) as any
     treeItem.command = {
+      command: 'todoList.view',
       title: label,
       tooltip: label,
       arguments: [treeItem],
@@ -200,6 +202,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
 
     treeItem.id = this.id
     treeItem.name = name
+    treeItem.detail = detail
     treeItem.contextValue = 'todoList'
     treeItem.time = time
     const date = getCurrentDate()
@@ -224,9 +227,9 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
     this.#gerateLocalConfig()
   }
 
-  addDailyTodo(option: { name: string; time: string }): void {
-    const { name, time } = option
-    const label = `计划: ${name}  ---  开始时间: ${time}`
+  addDailyTodo(option: { name: string; time: string; detail?: string }): void {
+    const { name, time, detail } = option
+    const label = `计划: ${name}  ---  开始时间: ${time}${detail ? ` --- 详情: ${detail}` : ''}`
     const treeItem = new TodoItem(label, vscode.TreeItemCollapsibleState.None) as any
     treeItem.command = {
       title: label,
@@ -242,6 +245,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
 
     treeItem.id = this.id
     treeItem.name = name
+    treeItem.detail = detail
     treeItem.time = time
     const date = getCurrentDate()
     treeItem.datetime = `${date} ${time}`
@@ -261,22 +265,6 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       temp = this.todos[title]
 
     temp.children.push(treeItem)
-
-    this.refresh()
-    this.#gerateLocalConfig()
-  }
-
-  addDetail(item: any, detail: string) {
-    const { parent, id } = item
-    const treeItem = this.todos[parent].children?.find(child => child.id === id) as any
-    if (!treeItem)
-      return
-    const _detail = detail ? ` --- 详情: ${detail}` : ''
-    if (!treeItem.detail)
-      treeItem.label += _detail
-    else
-      treeItem.label = treeItem.label.replace(` --- 详情: ${treeItem.detail}`, _detail)
-    treeItem.detail = detail
 
     this.refresh()
     this.#gerateLocalConfig()
