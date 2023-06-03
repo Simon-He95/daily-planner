@@ -17,6 +17,14 @@ instruction:
 
 ![demo](assets/demo.gif)
 
+## Config
+```code
+ "daily-planner":{
+    "avater":"https://avatars.githubusercontent.com/u/57086651?s=48&v=4",
+    "name":"Simon"
+  }
+```
+
 ## :coffee:
 
 [buy me a cup of coffee](https://github.com/Simon-He95/sponsor)
