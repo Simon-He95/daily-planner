@@ -42,8 +42,10 @@ export class CreateWebview {
       this.webviewView.dispose()
   }
 
-  deferScript(scripts: string) {
-    this._deferScript = scripts
+  deferScript(scripts: string | string[]) {
+    this._deferScript = typeof scripts === 'string'
+      ? scripts
+      : scripts.join('\n')
   }
 
   private _getHtmlForWebview(webview: vscode.Webview, html: string) {

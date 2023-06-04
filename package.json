@@ -105,6 +105,7 @@
     "@types/koa-router": "^7.4.4",
     "@types/node": "^18.15.11",
     "@types/vscode": "^1.77.0",
+    "@vscode-use/createwebview": "^0.0.3",
     "anthropic-ai": "^0.0.8",
     "bumpp": "^9.1.0",
     "eslint": "^8.37.0",
