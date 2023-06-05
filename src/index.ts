@@ -86,6 +86,11 @@ export async function activate(context: vscode.ExtensionContext) {
   })
   let reportIsWorking = false
   const generateReportDisposable = vscode.commands.registerCommand('todoList.generateReport', async (data, title) => {
+    const folders = vscode.workspace.workspaceFolders
+    if (!folders)
+      return vscode.window.showErrorMessage('当前目录路径不存在')
+    if (title === undefined)
+      title = '生成日报'
     if (reportIsWorking)
       return vscode.window.showInformationMessage('当前正在生成中，请耐心等待...')
     // 生成周报
@@ -110,11 +115,10 @@ export async function activate(context: vscode.ExtensionContext) {
     }
     else {
       result = '# Daily Planner 日报 \n\n'
-      const list = data[today]
-      if (!list)
+      if (!data.children.length)
         return vscode.window.showInformationMessage('今天还没有填写任何计划呢')
 
-      const { title, children } = list
+      const { title, children } = data
       result += `## ${title} \n`
       children.forEach((child: any) =>
         result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${calculateTime(child.time) > calculateTime('1:00') ? 'AM' : 'PM'} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
@@ -124,9 +128,7 @@ export async function activate(context: vscode.ExtensionContext) {
     reportIsWorking = true
 
     // 生产markdown类型周报
-    const folders = vscode.workspace.workspaceFolders
-    if (!folders)
-      return
+
     try {
       if (!claude)
         claude = new ClaudeApi('')

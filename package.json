@@ -71,6 +71,14 @@
           "light": "assets/light/delete.svg",
           "dark": "assets/dark/delete.svg"
         }
+      },
+      {
+        "command": "todoList.generateReport",
+        "title": "生成日报",
+        "icon": {
+          "light": "assets/light/one.svg",
+          "dark": "assets/dark/one.svg"
+        }
       }
     ],
     "menus": {
@@ -84,6 +92,11 @@
           "command": "todoList.deleteTodo",
           "group": "inline@3",
           "when": "view == DailyPlannerView.id && viewItem == todoList"
+        },
+        {
+          "command": "todoList.generateReport",
+          "group": "inline@3",
+          "when": "view == DailyPlannerView.id && viewItem == daily"
         }
       ]
     }

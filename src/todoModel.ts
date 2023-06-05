@@ -36,6 +36,8 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
         for (const key in _config) {
           const data = _config[key]
           const { id, title, children } = data
+          const treeItem = new vscode.TreeItem(title, vscode.TreeItemCollapsibleState.Expanded)
+          treeItem.contextValue = 'daily'
           const temp: any = {
             id,
             title,
@@ -62,7 +64,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
               treeItem.parent = parent
               return treeItem
             }),
-            treeItem: new vscode.TreeItem(title, vscode.TreeItemCollapsibleState.Expanded),
+            treeItem,
           }
           this.todos[key] = temp
         }
@@ -174,7 +176,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       if (Object.keys(result).length) {
         // button: 添加生成周报
         result.unshift(this.#report('生成周报'))
-        result.unshift(this.#report('生成日报'))
+        // result.unshift(this.#report('生成日报'))
       }
 
       // button: 添加你的计划
@@ -216,6 +218,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       children: [],
       treeItem: new vscode.TreeItem(title, vscode.TreeItemCollapsibleState.Expanded),
     }
+    temp.contextValue = 'daily'
     if (!this.todos[date])
       this.todos[date] = temp
     else
@@ -259,6 +262,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       children: [],
       treeItem: new vscode.TreeItem(title, vscode.TreeItemCollapsibleState.Expanded),
     }
+    temp.contextValue = 'daily'
     if (!this.todos[title])
       this.todos[title] = temp
     else
