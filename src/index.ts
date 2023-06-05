@@ -84,6 +84,7 @@ export async function activate(context: vscode.ExtensionContext) {
       }
     })
   })
+
   let reportIsWorking = false
   const generateReportDisposable = vscode.commands.registerCommand('todoList.generateReport', async (data, title) => {
     const folders = vscode.workspace.workspaceFolders
@@ -101,17 +102,41 @@ export async function activate(context: vscode.ExtensionContext) {
     let result = ''
     if (isWeekly) {
       result = '# Daily Planner 周报 \n\n'
-      // 计算周一到今天的数据生成周报
-      Object.keys(data).forEach((key) => {
-        if (compareDay(key, firstDay) && compareDay(today, key)) {
-          const { title, children } = data[key]
-          result += `## ${title} \n`
-          children.forEach((child: any) =>
-            result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${calculateTime(child.time) > calculateTime('1:00') ? 'AM' : 'PM'} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
-          )
-          result += '\n'
+      // 如果勾选了，则从勾选日期中生成报告
+      let isChecked = false
+      for (const key in data) {
+        const value = data[key]
+        if (value.id === 'root' && value.treeItem.contextValue === 'daily-check') {
+          isChecked = true
+          break
         }
-      })
+      }
+      if (isChecked) {
+        Object.keys(data).forEach((key) => {
+          const value = data[key]
+          if (value.id === 'root' && value.treeItem.contextValue === 'daily-check') {
+            const { title, children } = value
+            result += `## ${title} \n`
+            children.forEach((child: any) =>
+              result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${calculateTime(child.time) > calculateTime('1:00') ? 'AM' : 'PM'} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
+            )
+            result += '\n'
+          }
+        })
+      }
+      else {
+        // 计算周一到今天的数据生成周报
+        Object.keys(data).forEach((key) => {
+          if (compareDay(key, firstDay) && compareDay(today, key)) {
+            const { title, children } = data[key]
+            result += `## ${title} \n`
+            children.forEach((child: any) =>
+              result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${calculateTime(child.time) > calculateTime('1:00') ? 'AM' : 'PM'} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
+            )
+            result += '\n'
+          }
+        })
+      }
     }
     else {
       result = '# Daily Planner 日报 \n\n'
@@ -155,6 +180,15 @@ export async function activate(context: vscode.ExtensionContext) {
     })
   })
 
+  const uncheckDisposable = vscode.commands.registerCommand('todoList.uncheck', async (data) => {
+    data.treeItem.contextValue = 'daily-check'
+    todoDataProvider.refresh()
+  })
+
+  const checkDisposable = vscode.commands.registerCommand('todoList.check', async (data) => {
+    data.treeItem.contextValue = 'daily-uncheck'
+    todoDataProvider.refresh()
+  })
   const deleteTodoDisposable = vscode.commands.registerCommand('todoList.deleteTodo', async (todoItem) => {
     if (!todoItem)
       return
@@ -199,7 +233,7 @@ export async function activate(context: vscode.ExtensionContext) {
     createForm('view', () => { }, todoItem)
   })
 
-  context.subscriptions.push(editTodoDisposable, viewTodoDisposable, deleteTodoDisposable, addDailyTodoDisposable, DailyPlannerViewDisposable, addTodoDisposable, generateReportDisposable)
+  context.subscriptions.push(checkDisposable, uncheckDisposable, editTodoDisposable, viewTodoDisposable, deleteTodoDisposable, addDailyTodoDisposable, DailyPlannerViewDisposable, addTodoDisposable, generateReportDisposable)
 
   function createForm(status: 'add' | 'view' | 'edit', callback: (data: any) => void, form: any = {}) {
     provider.deferScript(`

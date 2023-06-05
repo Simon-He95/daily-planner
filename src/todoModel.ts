@@ -37,7 +37,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
           const data = _config[key]
           const { id, title, children } = data
           const treeItem = new vscode.TreeItem(title, vscode.TreeItemCollapsibleState.Expanded)
-          treeItem.contextValue = 'daily'
+          treeItem.contextValue = 'daily-uncheck'
           const temp: any = {
             id,
             title,
@@ -211,14 +211,15 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
     treeItem.datetime = `${date} ${time}`
     treeItem.parent = date
     const title = `${date} ${getDay()}`
+    const pTreeItem = new vscode.TreeItem(title, vscode.TreeItemCollapsibleState.Expanded)
 
     let temp: any = {
       id: 'root',
       title,
       children: [],
-      treeItem: new vscode.TreeItem(title, vscode.TreeItemCollapsibleState.Expanded),
+      treeItem: pTreeItem,
     }
-    temp.contextValue = 'daily'
+    temp.contextValue = 'daily-uncheck'
     if (!this.todos[date])
       this.todos[date] = temp
     else
@@ -262,7 +263,7 @@ export class TodoDataProvider implements vscode.TreeDataProvider<TodoItem> {
       children: [],
       treeItem: new vscode.TreeItem(title, vscode.TreeItemCollapsibleState.Expanded),
     }
-    temp.contextValue = 'daily'
+    temp.contextValue = 'daily-uncheck'
     if (!this.todos[title])
       this.todos[title] = temp
     else

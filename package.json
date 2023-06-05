@@ -79,6 +79,22 @@
           "light": "assets/light/one.svg",
           "dark": "assets/dark/one.svg"
         }
+      },
+      {
+        "command": "todoList.uncheck",
+        "title": "勾选",
+        "icon": {
+          "light": "assets/light/uncheck.svg",
+          "dark": "assets/dark/uncheck.svg"
+        }
+      },
+      {
+        "command": "todoList.check",
+        "title": "取消",
+        "icon": {
+          "light": "assets/light/check.svg",
+          "dark": "assets/dark/check.svg"
+        }
       }
     ],
     "menus": {
@@ -95,8 +111,18 @@
         },
         {
           "command": "todoList.generateReport",
-          "group": "inline@3",
-          "when": "view == DailyPlannerView.id && viewItem == daily"
+          "group": "inline@2",
+          "when": "view == DailyPlannerView.id && viewItem =~ /daily/"
+        },
+        {
+          "command": "todoList.uncheck",
+          "group": "inline@1",
+          "when": "view == DailyPlannerView.id && viewItem =~ /daily/ && !(viewItem =~ /daily-check/)"
+        },
+        {
+          "command": "todoList.check",
+          "group": "inline@1",
+          "when": "view == DailyPlannerView.id && viewItem == daily-check"
         }
       ]
     }
