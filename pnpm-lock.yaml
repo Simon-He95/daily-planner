@@ -19,6 +19,9 @@ devDependencies:
   '@vscode-use/createwebview':
     specifier: ^0.0.7
     version: 0.0.7
+  '@vscode-use/registerwebview':
+    specifier: ^0.0.1
+    version: 0.0.1
   anthropic-ai:
     specifier: ^0.0.8
     version: 0.0.8
@@ -808,6 +811,11 @@ packages:
 
   /@vscode-use/createwebview@0.0.7:
     resolution: {integrity: sha512-lEN/BSYZqSO7+1xdUnJvr7H1WmXCakYNdK8eJqek2QTzp2bZLYeGtrdSMJLDQVPR16zR680m72jSU+VHOYWH0g==}
+    engines: {vscode: ^1.77.0}
+    dev: true
+
+  /@vscode-use/registerwebview@0.0.1:
+    resolution: {integrity: sha512-XQ09fs3xCYfBI9Qo7l8fp0JK+2DP8jY6a5K/J0hHe2hAf2vHxBtpESRg3q2zQbJYdN18FreFBGdMergUu2jmSQ==}
     engines: {vscode: ^1.77.0}
     dev: true
 

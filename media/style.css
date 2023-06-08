@@ -1,0 +1,145 @@
+html {
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+.small .title {
+  display: none;
+}
+.small .btn {
+  border-radius: 50%;
+  padding: 9px;
+}
+.daily-planner {
+  padding: 24px;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+.darkMode {
+  background: #181818;
+}
+.lightMode {
+  background: rgb(230, 231, 248);
+}
+#app {
+  border: 1px solid #ebebeb;
+  border-radius: 3px;
+  margin-top: 20px;
+}
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+}
+
+.btn-wrapper {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.btn {
+  transition: all 0.5s;
+  border-radius: 3px;
+  padding: 9px 15px;
+  font-size: 12px;
+  background: #fff;
+  color: #606266;
+  border: 1px solid #dcdfe6;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+.mode {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.light {
+  fill: dark;
+}
+
+.dark {
+  fill: #fff;
+}
+
+.btn > span {
+  margin-left: 5px;
+}
+.btn:hover .add {
+  fill: rgb(51, 255, 194);
+}
+.btn:hover .add-day {
+  fill: rgb(43, 90, 233);
+}
+.btn:hover .week > path:not(:first-child) {
+  fill: rgb(255, 174, 0);
+}
+
+.btn:hover {
+  color: #409eff;
+  border-color: #c6e2ff;
+  background-color: #ecf5ff;
+}
+.btn:active {
+  color: #3a8ee6;
+  border-color: #3a8ee6;
+  outline: none;
+}
+
+.add {
+  fill: rgb(253, 139, 223);
+}
+.add-day {
+  fill: rgb(253, 219, 124);
+}
+
+.day {
+  fill: rgb(175, 195, 253);
+}
+.day:hover > path {
+  fill: rgb(88, 128, 249);
+}
+.edit {
+  fill: rgb(214, 143, 240);
+}
+.edit:hover > path {
+  fill: rgb(203, 86, 245);
+}
+.remove {
+  margin-left: 8px;
+  fill: rgb(253, 150, 150);
+}
+.remove:hover > path {
+  fill: rgb(251, 86, 86);
+}
+
+.custom-tree-node > span:nth-child(1) {
+  display: inline-block;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.el-tree {
+  background-color: transparent;
+  color: rgb(143, 147, 246);
+}
+.darkMode .el-tree {
+  color: rgb(240, 147, 175);
+}
+
+.el-checkbox__input.is-checked .el-checkbox__inner {
+  background-color: rgb(133, 137, 255);
+  border-color: rgb(133, 137, 255);
+}
+
+.darkMode .el-checkbox__input.is-checked .el-checkbox__inner {
+  background-color: rgb(240, 153, 147);
+  border-color: rgb(240, 153, 147);
+}

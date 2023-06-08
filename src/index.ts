@@ -1,19 +1,16 @@
-import fsp from 'node:fs/promises'
 import * as vscode from 'vscode'
-import ClaudeApi from 'anthropic-ai'
-import { CreateWebview } from '@vscode-use/createwebview'
-import { initVue } from '../media/main.js'
-import { TodoDataProvider } from './todoModel'
-import { calculateTime, compareDay, getCurrentDate, getDayFirst } from './common'
 // import { CreateWebview } from './createWebview'
+import { CreateWebview } from '@vscode-use/createwebview'
+import ClaudeApi from 'anthropic-ai'
+import { webviewProvider } from './webviewProvider'
 
-let timer: any = null
-let claude: ClaudeApi
-let switchvalue = false
 // 使用webview的方式来增加、修改、查看任务
 export async function activate(context: vscode.ExtensionContext) {
   const { avater, name } = vscode.workspace.getConfiguration('daily-planner')
-  let isClosed = false
+  // let timer: any = null
+  let claude: ClaudeApi
+  let switchvalue = false
+  // const isClosed = false
   const provider = new CreateWebview(
     context.extensionUri,
     'Daily planner',
@@ -27,19 +24,19 @@ export async function activate(context: vscode.ExtensionContext) {
     ['reset.css', 'https://unpkg.com/element-ui/lib/theme-chalk/index.css', 'main.css'],
   )
 
-  const todoDataProvider = new TodoDataProvider(context, () => {
-    if (!isClosed && !todoDataProvider.hasTodo) {
-      vscode.window.showInformationMessage('您还没有添加今日的计划，是否开启今日计划?', '添加计划', '忽略')
-        .then((choice) => {
-          if (choice === '添加计划')
-            vscode.commands.executeCommand('workbench.view.extension.todoList')
-          else
-            isClosed = true
-        })
-    }
-  })
+  // const todoDataProvider = new TodoDataProvider(context, () => {
+  //   if (!isClosed && !todoDataProvider.hasTodo) {
+  //     vscode.window.showInformationMessage('您还没有添加今日的计划，是否开启今日计划?', '添加计划', '忽略')
+  //       .then((choice) => {
+  //         if (choice === '添加计划')
+  //           vscode.commands.executeCommand('workbench.view.extension.todoList')
+  //         else
+  //           isClosed = true
+  //       })
+  //   }
+  // })
 
-  const DailyPlannerViewDisposable = vscode.window.registerTreeDataProvider('DailyPlannerView.id', todoDataProvider)
+  // const DailyPlannerViewDisposable = vscode.window.registerTreeDataProvider('DailyPlannerView.id', todoDataProvider)
 
   // 开启一个定时任务去检测是否达到计划时间，提醒开始任务 每秒检测
   timer = setInterval(() => {
@@ -251,7 +248,7 @@ export async function activate(context: vscode.ExtensionContext) {
     createForm('view', () => { }, todoItem)
   })
 
-  context.subscriptions.push(checkDisposable, uncheckDisposable, editTodoDisposable, viewTodoDisposable, deleteTodoDisposable, addDailyTodoDisposable, DailyPlannerViewDisposable, addTodoDisposable, generateReportDisposable)
+  context.subscriptions.push(checkDisposable, uncheckDisposable, editTodoDisposable, viewTodoDisposable, deleteTodoDisposable, addDailyTodoDisposable, addTodoDisposable, generateReportDisposable)
 
   function createForm(status: 'add' | 'view' | 'edit', callback: (data: any) => void, form: any = {}) {
     provider.deferScript(`
@@ -297,7 +294,7 @@ export async function activate(context: vscode.ExtensionContext) {
         ]">
           <el-input ${status === 'view' ? 'disabled' : ''} placeholder="需求、计划或者任务名称" v-model="form.name" clearable></el-input>
         </el-form-item>
-      
+
         <el-form-item label="开始时间" :rules="[
           { required: true, message: '请输入开始时间', trigger: 'blur' },
         ]">
@@ -324,6 +321,16 @@ export async function activate(context: vscode.ExtensionContext) {
     </div>
     `, callback)
   }
+  // todo: 将数据展示到webviewProvider中
+  webviewProvider(context, (data: any) => {
+    const { type, value } = data
+    if (type === 'view') {
+      const todoItem = JSON.parse(value)
+      // if (provider.isActive())
+      // provider.destory()
+      createForm('view', () => { }, todoItem)
+    }
+  })
 }
 
 export function deactivate() {
