@@ -1,4 +1,6 @@
-export function getwebviewScript(mode: 'light' | 'dark') {
+export function getwebviewScript(props: Record<string, any>) {
+  const { modelData, mode } = props
+
   return `
   <script>
   const vscode = acquireVsCodeApi()
@@ -6,41 +8,10 @@ export function getwebviewScript(mode: 'light' | 'dark') {
   const App = {
     data() {
       return {
-        mode: "${mode}",
+        mode: ${mode},
         large: true,
         maxWidth:'auto',
-        dataSource: [
-          {
-            id: 1,
-            label: 'Level one 1',
-            children: [
-              {
-                id: 9,
-                label: 'Level three 1-1-1',
-                time:'10:00',
-                detail:'吃早饭'
-              },
-              {
-                id: 10,
-                label: 'Level three 1-1-2',
-              },
-            ],
-          },
-          {
-            id: 2,
-            label: 'Level one 2',
-            children: [
-              {
-                id: 5,
-                label: 'Level two 2-1',
-              },
-              {
-                id: 6,
-                label: 'Level two 2-2',
-              },
-            ],
-          },
-        ]
+        dataSource: ${JSON.stringify(modelData)},
       }
     },
     mounted(){
@@ -60,10 +31,10 @@ export function getwebviewScript(mode: 'light' | 'dark') {
         return width - 250 + 'px'
       },
       getTitle(data){
-        const { label, time, detail } = data
+        const { name, time, detail } = data
         let result = ''
-        if(label){
-          result += "计划: " + label
+        if(name){
+          result += "计划: " + name
         }
         if(time){
           result += " --- 开始时间: " + time
@@ -74,32 +45,36 @@ export function getwebviewScript(mode: 'light' | 'dark') {
         return result
       },
       switchMode(){
-        if(this.mode==='light')
-          this.mode = 'dark'
-        else
-          this.mode = 'light'
+        this.mode = !this.mode
         vscode.postMessage({ type: 'switchMode', value: this.mode })
       },
       view(node, data){
-        if(node.isLeaf)
-          vscode.postMessage({ type: 'view', value:JSON.stringify(data) })
+        if(!data.children)
+          vscode.postMessage({ type: 'view', value: JSON.stringify(data) })
+      },
+      update(node, data){
+        this.$message({
+          type:'success',
+          message:node.id
+        })
+        vscode.postMessage({ type: 'update', value: JSON.stringify(data) })
+      },
+      remove(node, data){
+        this.$alert('是否删除该计划 ?', {
+          confirmButtonText: "确认",
+          showCancelButton:true,
+          cancelButtonText:"取消",
+          callback: action => {
+            if(action === 'confirm')
+              vscode.postMessage({ type: 'remove', value: JSON.stringify(data) })
+          }
+        });
+      },
+      add(value){
+        vscode.postMessage({ type: 'add', value })
+      },
+      weekReport(){
 
-          this.$message({
-            type:"success",
-            message:"调用详情api"
-          })
-      },
-      update(node){
-        this.$message({
-          type:"success",
-          message:"调用修改api"
-        })
-      },
-      remove(node){
-        this.$message({
-          type:"success",
-          message:"调用删除api"
-        })
       },
       dayReport(e,node){
         e.stopPropagation()

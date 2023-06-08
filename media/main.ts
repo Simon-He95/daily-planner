@@ -4,7 +4,7 @@ export function initVue(form = {
   name: '',
   time: '',
   detail: '',
-}, switchvalue) {
+}, switchvalue: boolean) {
   const { name = '', time = '', detail = '' } = form
   return `
   const vscode = acquireVsCodeApi()

@@ -11,10 +11,12 @@ html {
   padding: 9px;
 }
 .daily-planner {
+  position: relative;
   padding: 24px;
-  height: 100vh;
+  width: 100%;
+  height: calc(100vh - 24px);
   box-sizing: border-box;
-  overflow-x: auto;
+  overflow: auto;
 }
 .darkMode {
   background: #181818;
@@ -26,6 +28,7 @@ html {
   border: 1px solid #ebebeb;
   border-radius: 3px;
   margin-top: 20px;
+  width: 100%;
 }
 .custom-tree-node {
   flex: 1;
@@ -120,10 +123,11 @@ html {
 }
 
 .custom-tree-node > span:nth-child(1) {
-  display: inline-block;
+  display: inline-flex;
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
+  align-items: center;
 }
 
 .el-tree {
@@ -142,4 +146,12 @@ html {
 .darkMode .el-checkbox__input.is-checked .el-checkbox__inner {
   background-color: rgb(240, 153, 147);
   border-color: rgb(240, 153, 147);
+}
+.el-message-box{
+  width: auto;
+}
+.am{
+  display:inline-flex;
+  align-items:center;
+  margin-right: 2px;
 }
