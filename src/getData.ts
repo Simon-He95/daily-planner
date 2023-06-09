@@ -51,10 +51,10 @@ export function generateModelData(data: any) {
 
   if (keys.length) {
     for (const key of keys) {
-      const { children, title } = data[key]
+      const { children, title, id } = data[key]
       const temp: any = {
         label: title,
-        id: nanoid(),
+        id,
       }
       if (children) {
         temp.children = children.map((child: any) => {
