@@ -17,8 +17,14 @@ devDependencies:
     specifier: ^1.77.0
     version: 1.77.0
   '@vscode-use/createwebview':
-    specifier: ^0.0.7
-    version: 0.0.7
+    specifier: ^0.0.8
+    version: 0.0.8
+  '@vscode-use/registerwebview':
+    specifier: ^0.0.2
+    version: 0.0.2
+  '@vscode-use/utils':
+    specifier: ^0.0.4
+    version: 0.0.4
   anthropic-ai:
     specifier: ^0.0.8
     version: 0.0.8
@@ -806,8 +812,18 @@ packages:
       pretty-format: 27.5.1
     dev: true
 
-  /@vscode-use/createwebview@0.0.7:
-    resolution: {integrity: sha512-lEN/BSYZqSO7+1xdUnJvr7H1WmXCakYNdK8eJqek2QTzp2bZLYeGtrdSMJLDQVPR16zR680m72jSU+VHOYWH0g==}
+  /@vscode-use/createwebview@0.0.8:
+    resolution: {integrity: sha512-p2SdkRCyEgD+GYzaAo6CcHzbgfBG+uORePUwmy7MVXiwTwFOP9Szdp2Tbuja7dUrJzJB2n9ZDs/aZcIMz8TOFA==}
+    engines: {vscode: ^1.77.0}
+    dev: true
+
+  /@vscode-use/registerwebview@0.0.2:
+    resolution: {integrity: sha512-VOyy/ZzLV6ZwLf1soWeEz5dNDlF6x5P7gW1V04hzhOwRXkpFCIIsNI3Xz23K/gBnJebF0ZDRXN8pko+Dn43ZFg==}
+    engines: {vscode: ^1.77.0}
+    dev: true
+
+  /@vscode-use/utils@0.0.4:
+    resolution: {integrity: sha512-Y3uyEsg0ksq8nElfX/+ziIYJ0ksFGmUh5q5KbEC8GeRFITXjwx2F9u94xwyhfPbG1TI97gHbmRZPnz+dGxG3gg==}
     engines: {vscode: ^1.77.0}
     dev: true
 

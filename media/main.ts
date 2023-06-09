@@ -4,7 +4,7 @@ export function initVue(form = {
   name: '',
   time: '',
   detail: '',
-}, switchvalue) {
+}, switchvalue: boolean) {
   const { name = '', time = '', detail = '' } = form
   return `
   const vscode = acquireVsCodeApi()
@@ -14,6 +14,7 @@ export function initVue(form = {
       el: '#app',
       data() {
         return {
+          closeLoading: false,
           switchvalue: ${switchvalue},
           form: {
             name: "${name}",
@@ -21,6 +22,11 @@ export function initVue(form = {
             detail: "${detail}"
           },
         }
+      },
+      mounted(){
+        setTimeout(()=>{
+          this.closeLoading = true
+        }, 500)
       },
       methods: {
         changeMode(){
