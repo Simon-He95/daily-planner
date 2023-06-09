@@ -1,20 +1,18 @@
 import * as vscode from 'vscode'
 // import { CreateWebview } from './createWebview'
 import { CreateWebview } from '@vscode-use/createwebview'
-import ClaudeApi from 'anthropic-ai'
 import { message } from '@vscode-use/utils'
 import { initVue } from '../media/main'
 import { getwebviewScript } from '../media/webview'
 import { getwebviewHtml } from '../media/webviewHtml'
 import { webviewProvider } from './webviewProvider'
-import { addData, generateModelData, getData, removeData, updateData } from './getData'
+import { addData, generateModelData, generateReport, getData, removeData, updateData } from './getData'
 
 // 使用webview的方式来增加、修改、查看任务
 export async function activate(context: vscode.ExtensionContext) {
   const { avater, name } = vscode.workspace.getConfiguration('daily-planner')
   let modelData = generateModelData(await getData())
   let timer: any = null
-  let claude: ClaudeApi
   let switchvalue = false
   // const isClosed = false
   const provider = new CreateWebview(
@@ -30,20 +28,6 @@ export async function activate(context: vscode.ExtensionContext) {
     ['reset.css', 'https://unpkg.com/element-ui/lib/theme-chalk/index.css', 'main.css'],
   )
 
-  // const todoDataProvider = new TodoDataProvider(context, () => {
-  //   if (!isClosed && !todoDataProvider.hasTodo) {
-  //     vscode.window.showInformationMessage('您还没有添加今日的计划，是否开启今日计划?', '添加计划', '忽略')
-  //       .then((choice) => {
-  //         if (choice === '添加计划')
-  //           vscode.commands.executeCommand('workbench.view.extension.todoList')
-  //         else
-  //           isClosed = true
-  //       })
-  //   }
-  // })
-
-  // const DailyPlannerViewDisposable = vscode.window.registerTreeDataProvider('DailyPlannerView.id', todoDataProvider)
-
   // 开启一个定时任务去检测是否达到计划时间，提醒开始任务 每秒检测
   timer = setInterval(() => {
     if (!todoDataProvider.hasTodo || todoDataProvider.pending)
@@ -57,204 +41,6 @@ export async function activate(context: vscode.ExtensionContext) {
       }
     })
   }, 1000)
-
-  const addTodoDisposable = vscode.commands.registerCommand('todoList.addTodo', async () => {
-    if (provider.isActive())
-      provider.destory()
-
-    createForm('add', (data) => {
-      const { type, value } = data
-      if (type === 'error') {
-        vscode.window.showErrorMessage(value)
-      }
-      else if (type === 'submit') {
-        const { name, time, detail } = value
-        const processDetail = detail.replace(/\n/g, '\\n')
-
-        todoDataProvider.addTodo({ name, time, detail: processDetail })
-        vscode.window.showInformationMessage('提交成功')
-      }
-      else if (type === 'switchMode') {
-        switchvalue = value
-      }
-    })
-  })
-
-  const addDailyTodoDisposable = vscode.commands.registerCommand('todoList.addDailyTodo', async () => {
-    if (provider.isActive())
-      provider.destory()
-
-    createForm('add', (data) => {
-      const { type, value } = data
-      if (type === 'error') {
-        vscode.window.showErrorMessage(value)
-      }
-      else if (type === 'submit') {
-        const { name, time, detail } = value
-        const processDetail = detail.replace(/\n/g, '\\n')
-
-        todoDataProvider.addDailyTodo({ name, time, detail: processDetail })
-        vscode.window.showInformationMessage('提交成功')
-      }
-      else if (type === 'switchMode') {
-        switchvalue = value
-      }
-    })
-  })
-
-  let reportIsWorking = false
-  const generateReportDisposable = vscode.commands.registerCommand('todoList.generateReport', async (data, title) => {
-    const folders = vscode.workspace.workspaceFolders
-    if (!folders)
-      return vscode.window.showErrorMessage('当前目录路径不存在')
-    if (title === undefined)
-      title = '生成日报'
-    if (reportIsWorking)
-      return vscode.window.showInformationMessage('当前正在生成中，请耐心等待...')
-    // 生成周报
-    const isWeekly = title === '生成周报'
-    const today = getCurrentDate()
-    const firstDay = getDayFirst()
-
-    let result = ''
-    if (isWeekly) {
-      result = '# Daily Planner 周报 \n\n'
-      // 如果勾选了，则从勾选日期中生成报告
-      let isChecked = false
-      for (const key in data) {
-        const value = data[key]
-        if (value.id === 'root' && value.treeItem.contextValue === 'daily-check') {
-          isChecked = true
-          break
-        }
-      }
-      if (isChecked) {
-        Object.keys(data).forEach((key) => {
-          const value = data[key]
-          if (value.id === 'root' && value.treeItem.contextValue === 'daily-check') {
-            const { title, children } = value
-            result += `## ${title} \n`
-            children.forEach((child: any) =>
-              result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${calculateTime(child.time) > calculateTime('1:00') ? 'AM' : 'PM'} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
-            )
-            result += '\n'
-          }
-        })
-      }
-      else {
-        // 计算周一到今天的数据生成周报
-        Object.keys(data).forEach((key) => {
-          if (compareDay(key, firstDay) && compareDay(today, key)) {
-            const { title, children } = data[key]
-            result += `## ${title} \n`
-            children.forEach((child: any) =>
-              result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${calculateTime(child.time) > calculateTime('1:00') ? 'AM' : 'PM'} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
-            )
-            result += '\n'
-          }
-        })
-      }
-    }
-    else {
-      result = '# Daily Planner 日报 \n\n'
-      if (!data.children.length)
-        return vscode.window.showInformationMessage('今天还没有填写任何计划呢')
-
-      const { title, children } = data
-      result += `## ${title} \n`
-      children.forEach((child: any) =>
-        result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${calculateTime(child.time) > calculateTime('1:00') ? 'AM' : 'PM'} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
-      )
-      result += '\n'
-    }
-    reportIsWorking = true
-
-    // 生产markdown类型周报
-
-    try {
-      if (!claude)
-        claude = new ClaudeApi('')
-      const summary = await claude.complete(`假设你是一个写${isWeekly ? '周' : '日'}报的达人,请你能根据我以下给出的markdown格式内容,进行提炼、润色和总结,给出这样的结果"## 本周计划总结: 提炼的总结\n## 工作中遇到的问题: \n如果有,则总结, 无则写无\n"\n\n注意不要生成额外冗余的信息\n\n
-        ${result}`, {
-        model: 'claude-v1.3-100k',
-      })
-      result += `${summary.trim()}`
-    }
-    catch (error) {
-    }
-
-    const rootpath = folders[0].uri.fsPath
-    // 根据操作的日期对应文件名
-    const reportUri = `${rootpath}/daily-planner__${isWeekly ? 'week' : 'day'}-report-${today}.md`
-    fsp.writeFile(reportUri, result, 'utf-8').catch((err) => {
-      vscode.window.showErrorMessage(err.message)
-    }).then(() => {
-      vscode.window.showInformationMessage(`Daily Planner ${isWeekly ? '周' : '日'}报已生成在当前目录下`, `打开${isWeekly ? '周' : '日'}报`).then((val) => {
-        reportIsWorking = false
-        if (val)
-          vscode.workspace.openTextDocument(reportUri).then(doc => vscode.window.showTextDocument(doc))
-      })
-    })
-  })
-
-  const uncheckDisposable = vscode.commands.registerCommand('todoList.uncheck', async (data) => {
-    data.treeItem.contextValue = 'daily-check'
-    todoDataProvider.refresh()
-  })
-
-  const checkDisposable = vscode.commands.registerCommand('todoList.check', async (data) => {
-    data.treeItem.contextValue = 'daily-uncheck'
-    todoDataProvider.refresh()
-  })
-
-  const deleteTodoDisposable = vscode.commands.registerCommand('todoList.deleteTodo', async (todoItem) => {
-    if (!todoItem)
-      return
-    const confirm = await vscode.window.showWarningMessage(
-      '是否确实要删除此计划?',
-      { modal: true },
-      '确认',
-    )
-    if (confirm === '确认') {
-      // Delete the item
-      todoDataProvider.deleteTodo(todoItem)
-    }
-  })
-
-  const editTodoDisposable = vscode.commands.registerCommand('todoList.editTodo', async (todoItem) => {
-    if (provider.isActive())
-      provider.destory()
-    createForm('edit', (data) => {
-      const { type, value } = data
-      if (type === 'error') {
-        vscode.window.showErrorMessage(value)
-      }
-      else if (type === 'submit') {
-        const { name, time, detail } = value
-        const processDetail = detail.replace(/\n/g, '\\n')
-        todoItem.label = todoItem.label.replace(`开始时间: ${todoItem.time}`, `开始时间: ${time}`)
-        todoItem.time = time
-        todoItem.label = todoItem.label.replace(`计划: ${todoItem.name}`, `计划: ${name}`)
-        todoItem.name = name
-        todoItem.label = todoItem.label.replace(`详情: ${todoItem.detail}`, `详情: ${processDetail}`)
-        todoItem.detail = processDetail
-        todoDataProvider.updateTodo(todoItem)
-        vscode.window.showInformationMessage('修改成功')
-        provider.destory()
-      }
-      else if (type === 'switchMode') {
-        switchvalue = value
-      }
-    }, todoItem)
-  })
-
-  const viewTodoDisposable = vscode.commands.registerCommand('todoList.view', async (todoItem) => {
-    if (provider.isActive())
-      provider.destory()
-    createForm('view', () => { }, todoItem)
-  })
-
-  context.subscriptions.push(checkDisposable, uncheckDisposable, editTodoDisposable, viewTodoDisposable, deleteTodoDisposable, addDailyTodoDisposable, addTodoDisposable, generateReportDisposable)
 
   function createForm(status: 'add' | 'view' | 'edit', callback: (data: any) => void, form: any = {}) {
     provider.deferScript(`
@@ -350,10 +136,7 @@ export async function activate(context: vscode.ExtensionContext) {
         createForm('edit', async (data) => {
           const { type, value } = data
           if (type === 'error') {
-            message({
-              type: 'error',
-              message: value,
-            })
+            message.error(value)
           }
           else if (type === 'submit') {
             // const { label, name, time, detail } = value
@@ -367,10 +150,7 @@ export async function activate(context: vscode.ExtensionContext) {
               modelData,
             }))
             webview.refresh(getwebviewHtml())
-            message({
-              type: 'info',
-              message: '修改成功',
-            })
+            message('修改成功')
             provider.destory()
           }
         }, oldData)
@@ -384,20 +164,14 @@ export async function activate(context: vscode.ExtensionContext) {
           modelData,
         }))
         webview.refresh(getwebviewHtml())
-        message({
-          type: 'info',
-          message: '删除成功',
-        })
+        message('删除成功')
         provider.destory()
       }
       else if (type === 'add') {
         createForm('add', async (data) => {
           const { type, value: _value } = data
           if (type === 'error') {
-            message({
-              type: 'error',
-              message: value,
-            })
+            message.error(value)
           }
           else if (type === 'submit') {
             await addData(_value, value)
@@ -408,12 +182,13 @@ export async function activate(context: vscode.ExtensionContext) {
               modelData,
             }))
             webview.refresh(getwebviewHtml())
-            message({
-              type: 'info',
-              message: '提交成功',
-            })
+            message('提交成功')
           }
         })
+      }
+      else if (type === 'report') {
+        const { type, selections } = JSON.parse(value)
+        await generateReport(type, selections)
       }
     })
 }

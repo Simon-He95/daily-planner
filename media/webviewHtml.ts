@@ -21,6 +21,7 @@ export function getwebviewHtml() {
         </div>
       </div>
       <el-tree
+        ref="treeEl"
         :data="dataSource"
         show-checkbox
         node-key="id"

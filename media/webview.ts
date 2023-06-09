@@ -70,14 +70,24 @@ export function getwebviewScript(props: Record<string, any>) {
         vscode.postMessage({ type: 'add', value })
       },
       weekReport(){
-
+        const treeEl = this.$refs.treeEl
+        if(!treeEl)
+          return
+        const filterTopNode = []
+        const checkKeys = treeEl.getCheckedKeys()
+        this.dataSource.forEach(item => {
+          if(checkKeys.includes(item.id))
+            filterTopNode.push(item.id)
+        })
+        const value = {
+          type: 'week',
+          selections: filterTopNode
+        }
+        vscode.postMessage({ type: 'report', value: JSON.stringify(value) })
       },
       dayReport(e,node){
         e.stopPropagation()
-        this.$message({
-          type:"success",
-          message:"调用日报api"
-        })
+        vscode.postMessage({ type: 'report', value: 'day'})
       }
     }
   };
