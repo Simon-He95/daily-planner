@@ -38,7 +38,7 @@
       "activitybar": [
         {
           "id": "todoList",
-          "title": "Daily Planner",
+          "title": "每日计划",
           "icon": "icon.png"
         }
       ]
@@ -48,82 +48,7 @@
         {
           "type": "webview",
           "id": "DailyPlannerView.id",
-          "name": "plan list"
-        }
-      ]
-    },
-    "commands": [
-      {
-        "command": "todoList.addTodo",
-        "title": "Add Plan"
-      },
-      {
-        "command": "todoList.editTodo",
-        "title": "editTodo",
-        "icon": {
-          "light": "assets/light/edit.svg",
-          "dark": "assets/dark/edit.svg"
-        }
-      },
-      {
-        "command": "todoList.deleteTodo",
-        "title": "deleteTodo",
-        "icon": {
-          "light": "assets/light/delete.svg",
-          "dark": "assets/dark/delete.svg"
-        }
-      },
-      {
-        "command": "todoList.generateReport",
-        "title": "生成日报",
-        "icon": {
-          "light": "assets/light/one.svg",
-          "dark": "assets/dark/one.svg"
-        }
-      },
-      {
-        "command": "todoList.uncheck",
-        "title": "勾选",
-        "icon": {
-          "light": "assets/light/uncheck.svg",
-          "dark": "assets/dark/uncheck.svg"
-        }
-      },
-      {
-        "command": "todoList.check",
-        "title": "取消",
-        "icon": {
-          "light": "assets/light/check.svg",
-          "dark": "assets/dark/check.svg"
-        }
-      }
-    ],
-    "menus": {
-      "view/item/context": [
-        {
-          "command": "todoList.editTodo",
-          "group": "inline@2",
-          "when": "view == DailyPlannerView.id && viewItem == todoList"
-        },
-        {
-          "command": "todoList.deleteTodo",
-          "group": "inline@3",
-          "when": "view == DailyPlannerView.id && viewItem == todoList"
-        },
-        {
-          "command": "todoList.generateReport",
-          "group": "inline@2",
-          "when": "view == DailyPlannerView.id && viewItem =~ /daily/"
-        },
-        {
-          "command": "todoList.uncheck",
-          "group": "inline@1",
-          "when": "view == DailyPlannerView.id && viewItem =~ /daily/ && !(viewItem =~ /daily-check/)"
-        },
-        {
-          "command": "todoList.check",
-          "group": "inline@1",
-          "when": "view == DailyPlannerView.id && viewItem == daily-check"
+          "name": "计划列表"
         }
       ]
     }

@@ -16,7 +16,7 @@ export async function activate(context: vscode.ExtensionContext) {
   // const isClosed = false
   const provider = new CreateWebview(
     context.extensionUri,
-    'Daily planner',
+    '每日计划',
     [{
       enforce: 'pre',
       src: 'https://unpkg.com/vue@2/dist/vue.js',
@@ -38,10 +38,10 @@ export async function activate(context: vscode.ExtensionContext) {
     </script>
     `)
     const title = status === 'add'
-      ? 'Daily Planner Add Page'
+      ? '每日计划 - 新增页'
       : status === 'view'
-        ? 'Daily Planner View Page'
-        : 'Daily Planner Edit Page'
+        ? '每日计划 - 详情页'
+        : '每日计划 - 编辑页'
     return provider.create(`
     <div id="app" :class="[switchvalue && 'dark']">
       <div class="loading" :class="[closeLoading && 'closeLoading']">
