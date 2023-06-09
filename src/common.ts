@@ -47,3 +47,10 @@ export function compareDay(big: string, small: string): boolean {
           ? true
           : !(d1 < d2)
 }
+
+export function getNowTime() {
+  const now = new Date()
+  const minutes = now.getMinutes().toString()
+  const nowtime = `${now.getHours()}:${minutes.length < 2 ? `0${minutes}` : minutes}`
+  return nowtime
+}

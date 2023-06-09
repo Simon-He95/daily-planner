@@ -3,7 +3,7 @@ import * as vscode from 'vscode'
 import { nanoid } from 'nanoid'
 import ClaudeApi from 'anthropic-ai'
 import { message, openFile } from '@vscode-use/utils'
-import { calculateTime, compareDay, getCurrentDate, getDayFirst } from './common'
+import { calculateTime, compareDay, getCurrentDate, getDayFirst, getNowTime } from './common'
 
 const __local__ = `${process.env.HOME}/daily_planner.json`
 let originData: any = {}
@@ -255,4 +255,21 @@ export async function generateReport(type: 'day' | 'week', selections: string[])
   }).catch((err) => {
     message.error(err.message)
   })
+}
+let REMIND_STATUS = false
+export function reminder(data: any[]) {
+  if (!data.length || REMIND_STATUS)
+    return
+
+  const target = data.find(item => item.time === getNowTime())
+  if (target) {
+    REMIND_STATUS = true
+    message.info({
+      message: `Daily Planner计划提醒: \n${target.label}`,
+      buttons: ['好的'],
+    })
+    setTimeout(() => {
+      REMIND_STATUS = false
+    }, 60000)
+  }
 }

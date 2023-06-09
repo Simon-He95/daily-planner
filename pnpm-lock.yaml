@@ -23,8 +23,8 @@ devDependencies:
     specifier: ^0.0.2
     version: 0.0.2
   '@vscode-use/utils':
-    specifier: ^0.0.3
-    version: 0.0.3
+    specifier: ^0.0.4
+    version: 0.0.4
   anthropic-ai:
     specifier: ^0.0.8
     version: 0.0.8
@@ -822,8 +822,8 @@ packages:
     engines: {vscode: ^1.77.0}
     dev: true
 
-  /@vscode-use/utils@0.0.3:
-    resolution: {integrity: sha512-Y62bbVCbBJbyIB3Orc3ohO6JLXzDMIPfJNsP3UXuN8+F5f6lpwM2FIfxBxLyRyuUbBdsuLWHDxcVoFVNTYNgMA==}
+  /@vscode-use/utils@0.0.4:
+    resolution: {integrity: sha512-Y3uyEsg0ksq8nElfX/+ziIYJ0ksFGmUh5q5KbEC8GeRFITXjwx2F9u94xwyhfPbG1TI97gHbmRZPnz+dGxG3gg==}
     engines: {vscode: ^1.77.0}
     dev: true
 

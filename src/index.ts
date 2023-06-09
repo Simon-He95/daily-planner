@@ -6,13 +6,12 @@ import { initVue } from '../media/main'
 import { getwebviewScript } from '../media/webview'
 import { getwebviewHtml } from '../media/webviewHtml'
 import { webviewProvider } from './webviewProvider'
-import { addData, generateModelData, generateReport, getData, removeData, updateData } from './getData'
+import { addData, generateModelData, generateReport, getData, reminder, removeData, updateData } from './getData'
 
 // 使用webview的方式来增加、修改、查看任务
 export async function activate(context: vscode.ExtensionContext) {
   const { avater, name } = vscode.workspace.getConfiguration('daily-planner')
   let modelData = generateModelData(await getData())
-  let timer: any = null
   let switchvalue = false
   // const isClosed = false
   const provider = new CreateWebview(
@@ -29,18 +28,8 @@ export async function activate(context: vscode.ExtensionContext) {
   )
 
   // 开启一个定时任务去检测是否达到计划时间，提醒开始任务 每秒检测
-  timer = setInterval(() => {
-    if (!todoDataProvider.hasTodo || todoDataProvider.pending)
-      return
-
-    todoDataProvider.monitor().then((res) => {
-      if (res === 'match') {
-        setTimeout(() => {
-          todoDataProvider.pending = false
-        }, 60000)
-      }
-    })
-  }, 1000)
+  setInterval(() =>
+    reminder(modelData), 1000)
 
   function createForm(status: 'add' | 'view' | 'edit', callback: (data: any) => void, form: any = {}) {
     provider.deferScript(`
