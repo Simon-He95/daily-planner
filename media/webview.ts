@@ -85,9 +85,13 @@ export function getwebviewScript(props: Record<string, any>) {
         }
         vscode.postMessage({ type: 'report', value: JSON.stringify(value) })
       },
-      dayReport(e,node){
+      dayReport(e,node,data){
         e.stopPropagation()
-        vscode.postMessage({ type: 'report', value: 'day'})
+        const value = {
+          type: 'day',
+          selections: [data.id]
+        }
+        vscode.postMessage({ type: 'report', value: JSON.stringify(value) })
       }
     }
   };
