@@ -1,5 +1,4 @@
 import * as vscode from 'vscode'
-// import { CreateWebview } from './createWebview'
 import { CreateWebview } from '@vscode-use/createwebview'
 import { message } from '@vscode-use/utils'
 import { initVue } from '../media/main'
@@ -8,6 +7,7 @@ import { getwebviewHtml } from '../media/webviewHtml'
 import { webviewProvider } from './webviewProvider'
 import { addData, generateModelData, generateReport, getData, reminder, removeData, updateData } from './getData'
 
+let timer: any = null
 // 使用webview的方式来增加、修改、查看任务
 export async function activate(context: vscode.ExtensionContext) {
   const { avater, name } = vscode.workspace.getConfiguration('daily-planner')
@@ -28,7 +28,7 @@ export async function activate(context: vscode.ExtensionContext) {
   )
 
   // 开启一个定时任务去检测是否达到计划时间，提醒开始任务 每秒检测
-  setInterval(() =>
+  timer = setInterval(() =>
     reminder(modelData), 1000)
 
   function createForm(status: 'add' | 'view' | 'edit', callback: (data: any) => void, form: any = {}) {
@@ -44,6 +44,9 @@ export async function activate(context: vscode.ExtensionContext) {
         : 'Daily Planner Edit Page'
     return provider.create(`
     <div id="app" :class="[switchvalue && 'dark']">
+      <div class="loading" :class="[closeLoading && 'closeLoading']">
+        <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24"><circle cx="18" cy="12" r="0" fill="#ffffff"><animate attributeName="r" begin=".67" calcMode="spline" dur="1.5s" keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" repeatCount="indefinite" values="0;2;0;0"/></circle><circle cx="12" cy="12" r="0" fill="#ffffff"><animate attributeName="r" begin=".33" calcMode="spline" dur="1.5s" keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" repeatCount="indefinite" values="0;2;0;0"/></circle><circle cx="6" cy="12" r="0" fill="#ffffff"><animate attributeName="r" begin="0" calcMode="spline" dur="1.5s" keySplines="0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8;0.2 0.2 0.4 0.8" repeatCount="indefinite" values="0;2;0;0"/></circle></svg>
+      </div>
       <a href="https://github.com/Simon-He95/daily-planner" class="github-corner" aria-label="View source on GitHub">
         <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
           <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
@@ -101,7 +104,7 @@ export async function activate(context: vscode.ExtensionContext) {
     </div>
     `, callback)
   }
-  // todo: 将数据展示到webviewProvider中
+
   const webview = webviewProvider(context,
     {
       mode: switchvalue,
@@ -128,8 +131,6 @@ export async function activate(context: vscode.ExtensionContext) {
             message.error(value)
           }
           else if (type === 'submit') {
-            // const { label, name, time, detail } = value
-            // const processDetail = detail.replace(/\n/g, '\\n')
             // 更新文件
             await updateData(oldData, value)
             // 通知视图更新

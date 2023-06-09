@@ -14,6 +14,7 @@ export function initVue(form = {
       el: '#app',
       data() {
         return {
+          closeLoading: false,
           switchvalue: ${switchvalue},
           form: {
             name: "${name}",
@@ -21,6 +22,11 @@ export function initVue(form = {
             detail: "${detail}"
           },
         }
+      },
+      mounted(){
+        setTimeout(()=>{
+          this.closeLoading = true
+        }, 500)
       },
       methods: {
         changeMode(){

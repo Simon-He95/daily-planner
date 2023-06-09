@@ -8,6 +8,7 @@ export function getwebviewScript(props: Record<string, any>) {
   const App = {
     data() {
       return {
+        closeLoading: false,
         mode: ${mode},
         large: true,
         maxWidth:'auto',
@@ -16,6 +17,9 @@ export function getwebviewScript(props: Record<string, any>) {
     },
     mounted(){
       this.maxWidth = this.setLarge()
+      setTimeout(()=>{
+        this.closeLoading = true
+      }, 500)
       window.addEventListener('resize',()=>{
         this.maxWidth = this.setLarge()
       })

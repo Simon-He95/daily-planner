@@ -58,7 +58,7 @@ export function generateModelData(data: any) {
       }
       if (children) {
         temp.children = children.map((child: any) => {
-          const { detail, label, id, name, parent, time } = child
+          const { detail, label, id, name, parent, time, isAm } = child
           return {
             detail,
             label,
@@ -66,6 +66,7 @@ export function generateModelData(data: any) {
             name,
             parent,
             time,
+            isAm,
           }
         })
       }
