@@ -28,7 +28,7 @@ export function getwebviewScript(props: Record<string, any>) {
         }else {
           this.large = true
         }
-        return width - 250 + 'px'
+        return width - 220 + 'px'
       },
       getTitle(data){
         const { name, time, detail } = data
@@ -53,10 +53,6 @@ export function getwebviewScript(props: Record<string, any>) {
           vscode.postMessage({ type: 'view', value: JSON.stringify(data) })
       },
       update(node, data){
-        this.$message({
-          type:'success',
-          message:node.id
-        })
         vscode.postMessage({ type: 'update', value: JSON.stringify(data) })
       },
       remove(node, data){

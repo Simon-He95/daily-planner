@@ -115,7 +115,6 @@ export async function removeData(data: any) {
 }
 
 export async function addData(data: any, type: 'day' | 'plan') {
-  debugger
   const { name, detail, time } = data
   const label = `计划: ${name} --- 开始时间: ${time}${detail ? ` --- 详情: ${detail}` : ''}`
   const isAm = calculateTime(time) < calculateTime('13:00')
@@ -127,6 +126,7 @@ export async function addData(data: any, type: 'day' | 'plan') {
       time,
       label,
       isAm,
+      parent: DAT_TITLE,
     })
   }
   else {
