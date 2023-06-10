@@ -12,6 +12,6 @@ export function webviewProvider(context: vscode.ExtensionContext, props: Record<
     callback,
   )
   provider.deferScript(getwebviewScript(props))
-  vscode.window.registerWebviewViewProvider('DailyPlannerView.id', provider)
+  context.subscriptions.push(vscode.window.registerWebviewViewProvider('DailyPlannerView.id', provider))
   return provider
 }

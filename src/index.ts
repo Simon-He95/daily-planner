@@ -1,6 +1,6 @@
-import * as vscode from 'vscode'
+import type * as vscode from 'vscode'
 import { CreateWebview } from '@vscode-use/createwebview'
-import { message } from '@vscode-use/utils'
+import { getConfiguration, message } from '@vscode-use/utils'
 import { initVue } from '../media/main'
 import { getwebviewScript } from '../media/webview'
 import { getwebviewHtml } from '../media/webviewHtml'
@@ -10,10 +10,9 @@ import { addData, generateModelData, generateReport, getData, reminder, removeDa
 let timer: any = null
 // 使用webview的方式来增加、修改、查看任务
 export async function activate(context: vscode.ExtensionContext) {
-  const { avater, name } = vscode.workspace.getConfiguration('daily-planner')
+  const { avater, name } = getConfiguration('daily-planner')
   let modelData = generateModelData(await getData())
   let switchvalue = false
-  // const isClosed = false
   const provider = new CreateWebview(
     context.extensionUri,
     '每日计划',

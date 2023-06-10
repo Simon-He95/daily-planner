@@ -174,81 +174,82 @@ export async function generateReport(type: 'day' | 'week', selections: string[])
   const folders = vscode.workspace.workspaceFolders
   if (!folders)
     return message.error('当前目录路径不存在')
-  const title = type === 'day' ? '生成日报' : '生成周报'
+
   if (reportIsWorking) {
     message('当前正在生成中，请耐心等待...')
     return
   }
-  let result = ''
 
   // 生成周报
-  const isWeekly = title === '生成周报'
+  const isWeekly = type === 'week'
   const today = getCurrentDate()
   const firstDay = getDayFirst()
-  if (isWeekly) {
-    result = '# Daily Planner 周报 \n\n'
-    if (selections.length) {
+  let result = isWeekly
+    ? '# Daily Planner 周报 \n\n'
+    : '# Daily Planner 日报 \n\n'
+
+  if (selections.length) {
     // 如果勾选了，则从勾选日期中生成报告
-      Object.keys(originData).forEach((key) => {
-        const value = originData[key]
-        if (selections.includes(value.id)) {
-          const { title, children } = value
-          result += `## ${title} \n`
-          children.forEach((child: any) =>
-            result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${calculateTime(child.time) > calculateTime('1:00') ? 'AM' : 'PM'} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
-          )
-          result += '\n'
-        }
-      })
-    }
-    else {
-      // 计算周一到今天的数据生成周报
-      Object.keys(originData).forEach((key) => {
-        if (compareDay(key, firstDay) && compareDay(today, key)) {
-          const { title, children } = originData[key]
-          result += `## ${title} \n`
-          children.forEach((child: any) =>
-            result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${calculateTime(child.time) > calculateTime('1:00') ? 'AM' : 'PM'} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
-          )
-          result += '\n'
-        }
-      })
-    }
+    Object.keys(originData).forEach((key) => {
+      const value = originData[key]
+      if (selections.includes(value.id)) {
+        const { title, children } = value
+        result += `## ${title} \n`
+        children.forEach((child: any) =>
+          result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${calculateTime(child.time) > calculateTime('1:00') ? 'AM' : 'PM'} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
+        )
+        result += '\n'
+      }
+    })
   }
   else {
-    result = '# Daily Planner 日报 \n\n'
-    const data = originData[today]
-    if (!data.children.length)
-      return vscode.window.showInformationMessage('今天还没有填写任何计划呢')
-
-    const { title, children } = data
-    result += `## ${title} \n`
-    children.forEach((child: any) =>
-      result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${calculateTime(child.time) > calculateTime('1:00') ? 'AM' : 'PM'} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
-    )
-    result += '\n'
+    // 计算周一到今天的数据生成周报
+    Object.keys(originData).forEach((key) => {
+      if (compareDay(key, firstDay) && compareDay(today, key)) {
+        const { title, children } = originData[key]
+        result += `## ${title} \n`
+        children.forEach((child: any) =>
+          result += `- 🎯 ${child.name} &nbsp;&nbsp;&nbsp;&nbsp; ⏰ ${child.time} ${calculateTime(child.time) > calculateTime('1:00') ? 'AM' : 'PM'} ${child.detail ? `&nbsp;&nbsp;&nbsp;&nbsp; 💬 ${child.detail}` : ''}\n`,
+        )
+        result += '\n'
+      }
+    })
   }
+
   reportIsWorking = true
 
   // 生产markdown类型周报
-
   try {
+    // 如果第一次失败了，那么第二次如果有其他ai选择就替换，设置一个超时时间
+    let pending = true
+    const TIME_OUT = 20000
     if (!claude)
       claude = new ClaudeApi('')
+    setTimeout(() => {
+      if (pending)
+        throw new Error('Claud请求超时')
+    }, TIME_OUT)
     const summary = await claude.complete(`假设你是一个写${isWeekly ? '周' : '日'}报的达人,请你能根据我以下给出的markdown格式内容,进行提炼、润色和总结,给出这样的结果"## 本周计划总结: 提炼的总结\n## 工作中遇到的问题: \n如果有,则总结, 无则写无\n"\n\n注意不要生成额外冗余的信息\n\n
       ${result}`, {
       model: 'claude-v1.3-100k',
     })
+    pending = false
     result += `${summary.trim()}`
   }
   catch (error) {
+    // 如果claude 失败使用别的ai替代
   }
 
   const rootpath = folders[0].uri.fsPath
   // 根据操作的日期对应文件名
   const reportUri = `${rootpath}/daily-planner__${isWeekly ? 'week' : 'day'}-report-${today}.md`
   fs.promises.writeFile(reportUri, result, 'utf-8').then(() => {
-    vscode.window.showInformationMessage(`Daily Planner ${isWeekly ? '周' : '日'}报已生成在当前目录下`, `打开${isWeekly ? '周' : '日'}报`).then((val) => {
+    message.info(
+      {
+        message: `Daily Planner ${isWeekly ? '周' : '日'}报已生成`,
+        buttons: [`打开${isWeekly ? '周' : '日'}报`],
+      },
+    ).then((val) => {
       reportIsWorking = false
       if (val)
         openFile(reportUri)
