@@ -28,11 +28,11 @@ html {
 	left: 0;
   right: 0;
   bottom: 0;
-	background: linear-gradient(60deg, #bd34fe 40%, #47caff 50%);
+	background: linear-gradient(60deg, #e5b1fc 40%, #c2e9f9 50%);
 	filter: blur(72px);
 }
 .darkMode .bg{
-	background: linear-gradient(60deg, #ededae 50%, #8ae7b8 50%);
+	background: linear-gradient(60deg, #f2f2c0 50%, #c7f0dc 50%);
 }
 
 .darkMode {

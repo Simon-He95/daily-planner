@@ -1,5 +1,5 @@
 body {
-	background-color: #ffffff;
+	background: linear-gradient(60deg, #e5b1fc 40%, #c2e9f9 50%);
 	height: 100%;
 }
 .mode{
@@ -11,8 +11,8 @@ body {
 }
 
 #app.dark{
-	background-color: #050505;
-	height: 100vh;
+	background: linear-gradient(60deg, #f2f2c0 50%, #c7f0dc 50%);
+	height: 100%;
 }
 #app.dark .mode{
 	color: #eee;
