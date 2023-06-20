@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import * as vscode from 'vscode'
 import { nanoid } from 'nanoid'
 import ClaudeApi from 'anthropic-ai'
-import { message, openFile } from '@vscode-use/utils'
+import { createProgress, message, openFile } from '@vscode-use/utils'
 import { calculateTime, compareDay, getCurrentDate, getDayFirst, getNowTime } from './common'
 
 const __local__ = `${process.env.HOME}/daily_planner.json`
@@ -179,6 +179,34 @@ export async function generateReport(type: 'day' | 'week', selections: string[])
     message('当前正在生成中，请耐心等待...')
     return
   }
+  let isDone = false
+  let timer: any = null
+  createProgress({
+    title: '当前正在生成中...',
+    done(report) {
+      report({ message: '当前正在生成中...', increment: 10 })
+      setTimeout(() => {
+        if (!isDone)
+          report({ message: '当前正在生成中...', increment: 20 })
+      }, 200)
+      setTimeout(() => {
+        if (!isDone)
+          report({ message: '当前正在生成中...', increment: 50 })
+      }, 400)
+      setTimeout(() => {
+        if (!isDone)
+          report({ message: '当前正在生成中...', increment: 70 })
+      }, 800)
+      return new Promise((resolve) => {
+        timer = setInterval(() => {
+          if (isDone) {
+            clearInterval(timer)
+            resolve()
+          }
+        }, 1000)
+      })
+    },
+  })
 
   // 生成周报
   const isWeekly = type === 'week'
@@ -256,6 +284,8 @@ export async function generateReport(type: 'day' | 'week', selections: string[])
     })
   }).catch((err) => {
     message.error(err.message)
+  }).finally(() => {
+    isDone = true
   })
 }
 let REMIND_STATUS = false
