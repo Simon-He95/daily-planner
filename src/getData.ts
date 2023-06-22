@@ -122,10 +122,12 @@ export async function addData(data: any, type: 'day' | 'plan') {
   const { name, detail, time } = data
   const label = `计划: ${name} --- 开始时间: ${time}${detail ? ` --- 详情: ${detail}` : ''}`
   const isAm = calculateTime(time) < calculateTime('13:00')
+  const id = nanoid()
 
   if (type === 'day') {
     originData[DAT_TITLE].children.push({
       name,
+      id,
       detail: detail.replace(/\n/g, '\\n'),
       time,
       label,
@@ -134,12 +136,11 @@ export async function addData(data: any, type: 'day' | 'plan') {
     })
   }
   else {
-    const id = nanoid()
     const today = getCurrentDate()
     const temp = {
       label,
       isAm,
-      id,
+      id: nanoid(),
       time,
       detail,
       name,
@@ -147,7 +148,7 @@ export async function addData(data: any, type: 'day' | 'plan') {
     }
     if (!originData[today]) {
       originData[today] = {
-        id: nanoid(),
+        id,
         name: today,
         title: today,
         children: [temp],
@@ -292,8 +293,16 @@ let REMIND_STATUS = false
 export function reminder(data: any[]) {
   if (!data.length || REMIND_STATUS)
     return
-
-  const target = data.find(item => item.time === getNowTime())
+  let target: any = null
+  data.some((item) => {
+    return item.children.some((child: any) => {
+      if (child.time === getNowTime()) {
+        target = child
+        return true
+      }
+      return false
+    })
+  })
   if (target) {
     REMIND_STATUS = true
     message.info({
